@@ -1,0 +1,66 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// Heikin Ashi Strategy V2 [Alorse] based on breizh29 script
+// © alorse
+
+//@version=5
+strategy('Heikin Ashi Strategy V2 [Alorse]', shorttitle='HAS V2 [Alorse]', overlay=true, pyramiding=0, currency=currency.USD, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+res = input.timeframe(title='Timeframe', defval='60', group='Heikin Ashi Candle')
+hshift = input.int(1, title='Timeframe Shift', group='Heikin Ashi Candle')
+res1 = input.timeframe(title='EMA Timeframe', defval='180', group='Heikin Ashi EMA')
+mhshift = input.int(0, title='EMA Timeframe Shift', group='Heikin Ashi EMA')
+fama = input.int(1, 'EMA Period', group='Heikin Ashi EMA')
+test = input.int(1, 'EMA Shift', group='Heikin Ashi EMA')
+sloma = input.int(30, 'EMA Period', group='Slow EMA')
+slomas = input.int(1, 'EMA Shift', group='Slow EMA')
+
+showShort = input.bool(false, title='Show only Long entries', group='Strategy')
+
+macdf = input.bool(false, title='With MACD filter', group='MACD')
+res2 = input.timeframe(title='MACD Time Frame', defval='15', group='MACD')
+macds = input.int(1, title='MACD Shift', group='MACD')
+ha_t = ticker.heikinashi(syminfo.tickerid)
+ha_close = request.security(ha_t, res, close[hshift], barmerge.gaps_off, barmerge.lookahead_on)
+mha_close = request.security(ha_t, res1, close[mhshift], barmerge.gaps_off, barmerge.lookahead_on)
+
+//macd
+[macdLine, signalLine, histLine] = ta.macd(close, 12, 26, 9)
+macdl = request.security(ha_t, res2, macdLine[macds], barmerge.gaps_off, barmerge.lookahead_on)
+macdsl = request.security(ha_t, res2, signalLine[macds], barmerge.gaps_off, barmerge.lookahead_on)
+
+//Moving Average
+fma = ta.ema(mha_close[test], fama)
+sma = ta.ema(ha_close[slomas], sloma)
+
+plot(fma, title='MA', color=color.new(color.blue, 0), linewidth=1, style=plot.style_line)
+plot(sma, title='SMA', color=color.new(color.purple, 0), linewidth=1, style=plot.style_line)
+
+
+//BACKTESTING
+startDate = input.int(title='Day', defval=1, minval=1, maxval=31, group='Backtesting starts')
+startMonth = input.int(title='Month', defval=7, minval=1, maxval=12, group='Backtesting starts')
+startYear = input.int(title='Year', defval=2021, minval=1800, maxval=2100, group='Backtesting starts')
+
+endDate = input.int(title='Day', defval=21, minval=1, maxval=31, group='Backtesting ends')
+endMonth = input.int(title='Month', defval=12, minval=1, maxval=12, group='Backtesting ends')
+endYear = input.int(title='Year', defval=2022, minval=1800, maxval=2100, group='Backtesting ends')
+
+inDateRange = time >= timestamp(syminfo.timezone, startYear, startMonth, startDate, 0, 0) and time < timestamp(syminfo.timezone, endYear, endMonth, endDate, 0, 0)
+
+//Strategy
+golong = ta.crossover(fma, sma) and (macdl > macdsl or macdf == false)
+goshort = ta.crossunder(fma, sma) and (macdl < macdsl or macdf == false)
+
+// LIVEMODE:: ENABLE / DISABLE
+enableLiveTest = input.bool(false, title="Enable live mode and stop backtesting", group="Livemode / Backtesting")
+curDate = timestamp('2023, 08, 06')
+targetDate = input.time(curDate, title="Start live mode from:", group="Livemode / Backtesting")
+// LIVEMODE:: END
+
+if enableLiveTest == false or time > targetDate
+    strategy.entry('Buy', strategy.long, when=golong)
+    if showShort == false
+        strategy.entry('Sell', strategy.short, when=goshort)
+    else
+        strategy.close('Buy', when=goshort)
+

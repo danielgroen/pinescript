@@ -1,0 +1,47 @@
+//
+//@author Alorse
+//@version=5
+strategy('Bollinger Bands Winner LITE [Alorse]', shorttitle='BB Winner LITE [Alorse]', overlay=true, pyramiding=0, currency=currency.USD, default_qty_type=strategy.percent_of_equity, initial_capital=1000, default_qty_value=10, commission_type=strategy.commission.percent, commission_value=0.01)
+
+verTxt = '1.0.2'
+version = input.string(title='Version', defval=verTxt, options=[verTxt], tooltip='This is informational only, nothing will change.')
+
+// Bollinger Bands
+bbGroup = 'Bollindger Bands'
+src = input.source(title='Source', defval=close, group=bbGroup)
+length = input.int(20, title='Length', group=bbGroup)
+mult = input.float(2.0, title='StdDev', minval=0.001, maxval=5, group=bbGroup)
+offset = input.int(0, 'Offset', minval=-500, maxval=500, group=bbGroup)
+
+basis = ta.sma(src, length)
+dev = mult * ta.stdev(src, length)
+upper = basis + dev
+lower = basis - dev
+
+pb1 = plot(upper, color=color.new(color.teal, 50), title='Upper')
+pb2 = plot(lower, color=color.new(color.teal, 50), title='Lower')
+fill(pb1, pb2, color=color.new(color.teal, 98), title='Background')
+plot(basis, 'Basis', color=color.new(color.orange, 50), offset=offset)
+
+//Strategy Conditions
+showShort = input.bool(false, title='Show Short entries', group='Strategy')
+candleper = input.float(title='Candle % below/above the BB', minval=1, maxval=100, defval=30, group='Strategy') * 0.01
+candle_size = high - low
+buyzone = candle_size * candleper + low
+sellzone = high - candle_size * candleper
+
+buy = buyzone < lower  //and close < open
+
+// LIVEMODE:: ENABLE / DISABLE
+enableLiveTest = input.bool(false, title="Enable live mode and stop backtesting", group="Livemode / Backtesting")
+curDate = timestamp('2023, 08, 06')
+targetDate = input.time(curDate, title="Start live mode from:", group="Livemode / Backtesting")
+// LIVEMODE:: END
+
+if enableLiveTest == false or time > targetDate
+    strategy.entry('Long', strategy.long, when=buy)
+    if showShort
+        strategy.entry('Short', strategy.short, when=buyzone > upper)
+    else
+        strategy.close('Long', when=buyzone > upper, comment='Close or Stop limit')
+

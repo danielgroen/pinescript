@@ -1,0 +1,24 @@
+//@author impressive_Snow
+//@version=5
+
+strategy(title='Long / sell everyminute | webhook test', overlay=true, initial_capital=1000, default_qty_value=0.5)
+
+// ---INPUTS---
+isLongOrder = input.bool(true, title="Do long orders", group="Orders per minute")
+isLongOrderInterval = isLongOrder ? input.int(1, 'Long order', group="Orders per minute" , minval=1, maxval=100, step=1) : 0
+
+isShortOrder = input.bool(true, title="Do short orders", group="Orders per minute")
+isShortOrderInterval = isShortOrder ? input.int(1, 'Short order', group="Orders per minute", minval=1, maxval=100, step=1) : 0
+
+
+// ---ORDERS---
+longCondition = barstate.isrealtime and minute(time) % (isLongOrderInterval + isShortOrderInterval) < isLongOrderInterval
+shortCondition = barstate.isrealtime and minute(time) % (isLongOrderInterval + isShortOrderInterval) >= isLongOrderInterval
+
+if longCondition
+    strategy.close("Short")
+    strategy.entry('Long', strategy.long)
+
+if shortCondition
+    strategy.close("Long")
+    strategy.entry('Short', strategy.short)
