@@ -1,17 +1,18 @@
-//@version=5
-
 // Found: on TV
-// Tested: with XRPUSDT | 30min
-// Results: 71% | 2.54
+// optimized for xrpusdt:30min
 
-//study(title="Tradebotler DAKELAX Binance:XRPUSDT Study-strategy", overlay=true)
-strategy(title='Tradebotler DAKELAX Binance:XRPUSDT Strategy', overlay=true)
+//@version=5
+strategy(title='Tradebotler DAKELAX Binance:XRPUSDT Strategy', initial_capital=100, slippage=3, default_qty_type=strategy.percent_of_equity, default_qty_value=5, commission_value = 0.055, overlay=false, calc_on_order_fills=true)
 
-buyAmount = input.int(20, minval=1)
-
-// SMA20
-len2 = input.int(20, minval=1)
+// Inputs
+direction = input.string(title="Direction", defval="long", options=["long", "short"])
+pyramiding = input.int(20, 'pyramiding', tooltip = "if pyramiding is 20, order_size must be 5.\n5 * 20 = 100")
+len2 = input.int(56, minval=1) // SMA20
+upperBBInput = input.float(1.5, minval=0, step=0.1)
+LowerBBInput = input.float(2.1, minval=0, step=0.1)
 src2 = input(close)
+
+
 out2 = ta.sma(src2, len2)
 
 // BB contraction value (medium tight)
@@ -21,8 +22,8 @@ contraction_value2 = 0.1
 
 // 2xSTDEV BB calculation
 dev = ta.stdev(src2, len2)
-upper_BB = out2 + 1.5 * dev
-lower_BB = out2 - 2.2 * dev
+upper_BB = out2 + upperBBInput * dev
+lower_BB = out2 - LowerBBInput * dev
 x1 = plot(upper_BB, color=color.new(color.blue, 0), linewidth=2)
 x2 = plot(lower_BB, color=color.new(color.blue, 0), linewidth=2)
 
@@ -34,34 +35,20 @@ contraction = (upper_BB - lower_BB) / out2
 fastMA = ta.ema(close, 7)
 slowMA = ta.ema(close, 18)
 
-// Determine alert setups
-crossUp = ta.crossover(fastMA, slowMA)
-crossDown = ta.crossunder(fastMA, slowMA)
-
-buySignal = (crossUp or crossUp[1]) and low > slowMA
-shortSignal = (crossDown or crossDown[1]) and high < slowMA
-
-// Highlight alerts on the chart
-bgColour = buySignal and barstate.isrealtime ? color.green : shortSignal and barstate.isrealtime ? color.red : na
-
-signalBuy = buySignal ? true : false
-signalSell = shortSignal ? true : false
-
-test = true
-
-test := not test[1]
-
+// long conditions
 closesBelowLowerBB = close < lower_BB
 closesAboveUpperBB = close > upper_BB
 
-tmptext = 'blah'
+// short conditions
+closesAboveUpperBBShort = close > upper_BB
+closesBelowLowerBBShort = close < lower_BB
 
 // Plot values
 plot(series=fastMA, color=color.new(color.teal, 0))
 plot(series=slowMA, color=color.new(color.orange, 0))
 
 plot(out2, color=color.new(color.black, 0), linewidth=1)
-fill(x1, x2, color=contraction > contraction_value ? color.black : contraction < contraction_value2 ? color.yellow : color.red, transp=90)
+fill(x1, x2, color=contraction > contraction_value ? color.new(color.black, 90) : contraction < contraction_value2 ? color.new(color.yellow, 90) : color.new(color.red, 90))
 
 isInRed = contraction < contraction_value and contraction >= contraction_value2
 isInYellow = contraction < contraction_value and contraction < contraction_value2
@@ -73,8 +60,16 @@ targetDate = input.time(curDate, title="Start live mode from:", group="Livemode 
 // LIVEMODE:: END
 
 if enableLiveTest == false or time > targetDate
-    if closesBelowLowerBB
-        strategy.order('Buy', strategy.long, buyAmount)
+    if direction == "long"
+        if closesBelowLowerBB and strategy.opentrades < pyramiding
+            strategy.order('Long', strategy.long)
 
-    if closesAboveUpperBB
-        strategy.close_all()
+        if closesAboveUpperBB
+            strategy.close_all()
+    
+    if direction == "short"
+        if closesAboveUpperBBShort and strategy.opentrades < pyramiding
+            strategy.order('Short', strategy.short)
+
+        if closesBelowLowerBBShort
+            strategy.close_all()

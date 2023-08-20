@@ -2,11 +2,16 @@
 collection of my scripts
 
 ## 3rd party strategies:
+
+### Github
 - https://github.com/vikaschouhan/algotrade/tree/master/pinescript
 - https://github.com/aceri/tradingview_pinescript
 - https://github.com/oguzhandilber/PineScripts
 - https://github.com/pradip-interra/PineScripts/tree/main
 - https://github.com/Alorse/pinescript-strategies
+
+### Tradingview
+- search: Dca bot
 
 ## 3rd party studies:
 - https://github.com/harryguiacorn/tradingview/blob/main/CandlestickInsideBar.pine
