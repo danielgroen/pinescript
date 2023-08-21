@@ -3,7 +3,8 @@
 
 //@version=4
 //Paste the line below in your alerts to run the built-in commands.
-strategy(title="Fibs limit only", shorttitle="Strategy", overlay=true, precision=8, pyramiding=1000, initial_capital=100, commission_type=strategy.commission.percent, commission_value=0.055)
+//{{strategy.order.alert_message}}
+strategy(title="Fibs limit only", shorttitle="Fibs limit only", overlay=true, precision=8, pyramiding=1000, initial_capital=100, commission_type=strategy.commission.percent, commission_value=0.055)
 
 //Settings 
 testing = input(false, "Live")
