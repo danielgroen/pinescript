@@ -2,7 +2,7 @@
 // optimized for xrpusdt:30min
 
 //@version=5
-strategy(title='Tradebotler DAKELAX Binance:XRPUSDT Strategy', initial_capital=100, slippage=3, default_qty_type=strategy.percent_of_equity, default_qty_value=5, commission_value = 0.055, overlay=false, calc_on_order_fills=true)
+strategy(title='Tradebotler DAKELAX Binance:XRPUSDT Strategy', initial_capital=100, slippage=3, default_qty_type=strategy.percent_of_equity, default_qty_value=5, commission_value = 0.055, overlay=false)
 
 // Inputs
 direction = input.string(title="Direction", defval="long", options=["long", "short"])

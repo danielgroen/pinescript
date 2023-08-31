@@ -1,0 +1,188 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © QuantTrader-pro
+
+//@version=5
+strategy("#002 - ATR Bands - Strategy", overlay=true, initial_capital = 1000, default_qty_type = strategy.percent_of_equity, default_qty_value = 100)
+
+// Inputs
+atrPeriod = input.int(title = "ATR Period", defval = 14, minval = 1)
+srcUpper = input.source(title = "Source Upper", defval = close)
+srcLower = input.source(title = "Source Lower", defval = close)
+atrMultiplierUpper = input(title = "ATR Multiplier Upper", defval = 1)
+atrMultiplierLower = input(title = "ATR Multiplier Lower", defval = 1)
+
+lengthInput = input.int(13, title="Length")
+bullPower = high - ta.ema(close, lengthInput)
+bearPower = low - ta.ema(close, lengthInput)
+bbp = bullPower + bearPower
+// plot(bullPower + bearPower, title="BBPower")
+
+
+//////////////////ATR Periods////////////////////////////////
+
+// inputs //
+//{
+trailType = input.string('modified', 'Trailtype', options=['modified', 'unmodified'])
+ATRPeriod = input(28, 'ATR Period')
+ATRFactor = input(5, 'ATR Factor')
+show_fib_entries = input(true, 'Show Fib Entries?')
+
+norm_o = open
+norm_h = high
+norm_l = low
+norm_c = close
+
+//}
+
+//////// FUNCTIONS //////////////
+//{
+// Wilders ma //
+Wild_ma(_src, _malength) =>
+    _wild = 0.0
+    _wild := nz(_wild[1]) + (_src - nz(_wild[1])) / _malength
+    _wild
+
+/////////// TRUE RANGE CALCULATIONS /////////////////
+HiLo = math.min(norm_h - norm_l, 1.5 * nz(ta.sma(norm_h - norm_l, ATRPeriod)))
+
+HRef = norm_l <= norm_h[1] ? norm_h - norm_c[1] : norm_h - norm_c[1] - 0.5 * (norm_l - norm_h[1])
+
+LRef = norm_h >= norm_l[1] ? norm_c[1] - norm_l : norm_c[1] - norm_l - 0.5 * (norm_l[1] - norm_h)
+
+trueRange = trailType == 'modified' ? math.max(HiLo, HRef, LRef) : math.max(norm_h - norm_l, math.abs(norm_h - norm_c[1]), math.abs(norm_l - norm_c[1]))
+//}
+
+
+/////////// TRADE LOGIC ////////////////////////
+//{
+loss = ATRFactor * Wild_ma(trueRange, ATRPeriod)
+
+Up = norm_c - loss
+Dn = norm_c + loss
+
+TrendUp = Up
+TrendDown = Dn
+Trend = 1
+
+TrendUp := close[1] > TrendUp[1] ? math.max(Up, TrendUp[1]) : Up
+TrendDown := norm_c[1] < TrendDown[1] ? math.min(Dn, TrendDown[1]) : Dn
+
+Trend := norm_c > TrendDown[1] ? 1 : norm_c < TrendUp[1] ? -1 : nz(Trend[1], 1)
+trail = Trend == 1 ? TrendUp : TrendDown
+
+ex = 0.0
+ex := ta.crossover(Trend, 0) ? norm_h : ta.crossunder(Trend, 0) ? norm_l : Trend == 1 ? math.max(ex[1], norm_h) : Trend == -1 ? math.min(ex[1], norm_l) : ex[1]
+//}
+
+// //////// PLOT TP and SL /////////////
+//{
+plot(trail, 'Trailingstop', style=plot.style_line, color=Trend == 1 ? color.green : Trend == -1 ? color.red : na)
+plot(ex, 'Extremum', style=plot.style_circles, color=Trend == 1 ? color.lime : Trend == -1 ? color.fuchsia : na)
+//}
+
+
+////// FIBONACCI LEVELS ///////////
+//{
+state = Trend == 1 ? 'long' : 'short'
+
+fib1Level = 61.8
+fib2Level = 78.6
+fib3Level = 88.6
+
+f1 = ex + (trail - ex) * fib1Level / 100
+f2 = ex + (trail - ex) * fib2Level / 100
+f3 = ex + (trail - ex) * fib3Level / 100
+l100 = trail + 0
+
+Fib1 = plot(f1, 'Fib 1', style=plot.style_line, color=color.new(color.black, 0))
+Fib2 = plot(f2, 'Fib 2', style=plot.style_line, color=color.new(color.black, 0))
+Fib3 = plot(f3, 'Fib 3', style=plot.style_line, color=color.new(color.black, 0))
+L100 = plot(l100, 'l100', style=plot.style_line, color=color.new(color.black, 0))
+
+fill(Fib1, Fib2, color=state == 'long' ? color.new(color.green, 90) : state == 'short' ? color.new(color.red, 90) : na)
+fill(Fib2, Fib3, color=state == 'long' ? color.new(color.green, 70) : state == 'short' ? color.new(color.red, 70) : na)
+fill(Fib3, L100, color=state == 'long' ? color.new(color.green, 60) : state == 'short' ? color.new(color.red, 60) : na)
+
+l1 = state[1] == 'long' and ta.crossunder(norm_c, f1[1])
+l2 = state[1] == 'long' and ta.crossunder(norm_c, f2[1])
+l3 = state[1] == 'long' and ta.crossunder(norm_c, f3[1])
+s1 = state[1] == 'short' and ta.crossover(norm_c, f1[1])
+s2 = state[1] == 'short' and ta.crossover(norm_c, f2[1])
+s3 = state[1] == 'short' and ta.crossover(norm_c, f3[1])
+
+atr = ta.sma(trueRange, 14)
+
+/////////// FIB PLOTS /////////////////.
+
+plotshape(show_fib_entries and l1 ? low - atr : na, 'LS1', style=shape.triangleup, location=location.belowbar, color=color.new(color.yellow, 0), size=size.tiny)
+plotshape(show_fib_entries and l2 ? low - 1.5 * atr : na, 'LS2', style=shape.triangleup, location=location.belowbar, color=color.new(color.yellow, 0), size=size.tiny)
+plotshape(show_fib_entries and l3 ? low - 2 * atr : na, 'LS3', style=shape.triangleup, location=location.belowbar, color=color.new(color.yellow, 0), size=size.tiny)
+plotshape(show_fib_entries and s1 ? high + atr : na, 'SS1', style=shape.triangledown, location=location.abovebar, color=color.new(color.purple, 0), size=size.tiny)
+plotshape(show_fib_entries and s2 ? high + 1.5 * atr : na, 'SS2', style=shape.triangledown, location=location.abovebar, color=color.new(color.purple, 0), size=size.tiny)
+plotshape(show_fib_entries and s3 ? high + 2 * atr : na, 'SS3', style=shape.triangledown, location=location.abovebar, color=color.new(color.purple, 0), size=size.tiny)
+//}
+
+adxlen = input(14, title="ADX Smoothing")
+dilen = input(14, title="DI Length")
+dirmov(len) =>
+	up = ta.change(high)
+	down = -ta.change(low)
+	plusDM = na(up) ? na : (up > down and up > 0 ? up : 0)
+	minusDM = na(down) ? na : (down > up and down > 0 ? down : 0)
+	truerange = ta.rma(ta.tr, len)
+	plus = fixnan(100 * ta.rma(plusDM, len) / truerange)
+	minus = fixnan(100 * ta.rma(minusDM, len) / truerange)
+	[plus, minus]
+adx(dilen, adxlen) =>
+	[plus, minus] = dirmov(dilen)
+	sum = plus + minus
+	adx = 100 * ta.rma(math.abs(plus - minus) / (sum == 0 ? 1 : sum), adxlen)
+sig = adx(dilen, adxlen)
+
+//// RSI ////
+
+rsi = ta.rsi(close, 14)
+
+//// Configuration ////
+adx_max = input.float(13, title="adx_max")
+
+rsi_buy_level = input.int(42, title = "rsi_buy_level")
+rsi_sell_level = input.int(90, title = "rsi_sell_level")
+
+
+
+////////////////// BUY and SELL SIGNALS //////////////////
+
+fib_buy = l1 or l2 or l3
+fib_sell = s1 or s2 or s3
+
+buy_signal = (fib_buy[1]) and (close > open) and sig > adx_max and rsi < rsi_buy_level
+sell_signal = (fib_sell[1]) and (close < open) and sig > adx_max and rsi > rsi_sell_level
+
+
+plotshape(buy_signal, title="Buy", text="BUY", textcolor=color.white, style=shape.labelup, location=location.belowbar, color=color.green, size=size.tiny)
+plotshape(sell_signal, title="Sel", text="SELL", textcolor=color.white, style=shape.labeldown, location=location.abovebar, color=color.red, size=size.tiny)
+
+
+pip_size = syminfo.mintick * (syminfo.type == "forex" ? 10 : 1)
+
+
+take_profit_pips = input.int(100, "take_profit_pips")
+stop_loss_pips = input.int(250, "stop_loss_pips")
+
+// LIVEMODE:: ENABLE / DISABLE
+enableLiveTest = input.bool(false, title="Enable live mode and stop backtesting", group="Livemode / Backtesting")
+curDate = timestamp('2023, 08, 06')
+targetDate = input.time(curDate, title="Start live mode from:", group="Livemode / Backtesting")
+// LIVEMODE:: END
+
+if enableLiveTest == false or time > targetDate
+	if buy_signal
+		strategy.entry("Long", strategy.long)
+		strategy.exit("Take Profit / StopLoss",from_entry = "Long", limit = high + take_profit_pips*pip_size, stop = low - stop_loss_pips*pip_size)
+		
+
+	if sell_signal
+		strategy.entry("Short", strategy.short)
+		strategy.exit("Take Profit / StopLoss", from_entry="Short", limit = low - take_profit_pips*pip_size, stop = high + stop_loss_pips*pip_size)
+		

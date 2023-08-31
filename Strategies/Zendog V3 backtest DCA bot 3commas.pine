@@ -15,9 +15,9 @@
 
 //@author zendog123
 //@version=5
-strategy(title='Zendog V3 backtest DCA bot 3commas', shorttitle='Zendog V3 DCA', 
- overlay=true, max_labels_count=500, pyramiding=99, initial_capital=10000, 
-  calc_on_order_fills=false, commission_type=strategy.commission.percent, commission_value=0.075)
+strategy(title='Zendog V3 backtest DCA bot 3commas', shorttitle='Zendog V3 DCA | modded', 
+ overlay=true, max_labels_count=500, slippage=3, pyramiding=99, initial_capital=100, 
+  calc_on_order_fills=false, commission_type=strategy.commission.percent, commission_value=0.055)
 
 //used for labels
 cfg_theme = input.string(defval='dark', title='Chart theme', options=['light', 'dark'])
@@ -72,7 +72,7 @@ string _tooltip9 = "Value of external indicator to trigger safety orders"
 float safety_order_value = input.float(defval=-99999, title='Safety order value', group='Deal start & end conditions', tooltip=_tooltip9)
 
 string rsi_start_operation = input.string(defval='<=', title='RSI-7 Operation', group='RSI7 (if used for Deal start trigger)', options=['<=', '>='])
-rsi_start_value = input.int(defval=30, title='RSI-7 Value', group='RSI7 (if used for Deal start trigger)')
+rsi_start_value = input.int(defval=24, title='RSI-7 Value', group='RSI7 (if used for Deal start trigger)')
 
 
 
@@ -126,8 +126,8 @@ else
 limit_date_range = input.bool(title='Limit Date Range', defval=false, group='Backtest date range')
 
 //Input options that configure backtest date range
-start_time  = input.time(defval=timestamp('01 Jan 2022 00:00 +0000'), title='Start Time', group='Backtest date range')
-end_time    = input.time(defval=timestamp('31 Dec 2022 00:00 +0000'), title='End Time', group='Backtest date range')
+start_time  = input.time(defval=timestamp('01 Jan 2023 00:00 +0000'), title='Start Time', group='Backtest date range')
+end_time    = input.time(defval=timestamp('31 Dec 2099 00:00 +0000'), title='End Time', group='Backtest date range')
 
 in_date_range = true
 if limit_date_range
@@ -139,14 +139,14 @@ else
 
 
 
-cfg_strategy_type                           = input.string(title='Strategy Type', defval='long', options=['long', 'short'], group='Strategy settings')
+cfg_strategy_type                           = input.string(title='Strategy Type', defval='short', options=['long', 'short'], group='Strategy settings')
 var bool IS_LONG = cfg_strategy_type == 'long'
 
-float cfg_base_order_size_usd               = input.float(title='Base order size', defval=1000, step=1000, group='Strategy settings')
-float cfg_safety_order_size_usd             = input.float(title='Safety order size', defval=700, step=100, group='Strategy settings')
+float cfg_base_order_size_usd               = input.float(title='Base order size', defval=10, step=1000, group='Strategy settings')
+float cfg_safety_order_size_usd             = input.float(title='Safety order size', defval=100, step=100, group='Strategy settings')
 
 cfg_take_profit_type                        = input.string(title='Take Profit Type', defval='% From total volume', options=['% From base order', '% From total volume'], group='Strategy settings')
-float cfg_take_profit_perc                  = input.float(title='Take Profit (%)', minval=0.0, step=0.1, defval=2, group='Strategy settings')
+float cfg_take_profit_perc                  = input.float(title='Take Profit (%)', minval=0.0, step=0.1, defval=3, group='Strategy settings')
 
 
 bool cfg_enable_stop_loss                   = input.bool(title='Enable Stop Loss', defval=false, group='Strategy settings')
@@ -185,13 +185,13 @@ bool cfg_exec_external_indicator= input.bool(title='External indicator deal stop
 bool cfg_exec_stop_loss         = input.bool(title='Stop Loss', defval=true, group='3commas Bot Settings')
 bool cfg_exec_planb_timeout     = input.bool(title='PLAN-B', defval=true, group='3commas Bot Settings')
 
-float cfg_commision_percent = input.float(title='Commision (%)', minval=0.0, step=0.001, defval=0.075, group='Broker')
+float cfg_commision_percent = input.float(title='Commision (%)', minval=0.0, step=0.001, defval=0.055, group='Broker')
 
 //visuals
 int cfg_decimals            = input.int(title='Decimals For Display', defval=2, group='Visuals')
 
 bool cfg_show_pnl_labels    = input.bool(title='Show PnL Labels', defval=true, group='Visuals')
-bool cfg_show_stats_table   = input.bool(title='Show Table With Statistics', defval=true, group='Visuals')
+bool cfg_show_stats_table   = input.bool(title='Show Table With Statistics', defval=false, group='Visuals')
 bool cfg_show_settings_table= input.bool(title='Show Table With Strategy Settings', defval=false, group='Visuals')
 bool cfg_show_step_table    = input.bool(title='Show Table With Steps Similar To 3commas', defval=false, group='Visuals', tooltip='Make sure the Table with Strategy Settings is disabled because they use the same position\n\nIf the Safety orders type is not percentage all significant values will be replaced by - (dashes)')
 float cfg_steps_bo_price    = input.float(title='BO Entry Price For Steps Table', defval=0, group='Visuals', tooltip="Custom BO price used to calculate all table values. If this is not configured, the close value will be used")
