@@ -26,19 +26,7 @@ var int_sell_20 = input.bool(defval = false, title = "Use 20% profit intermidiat
 var int_sell_25 = input.bool(defval = false, title = "Use 25% profit intermidiate sell")
 var int_sell_30 = input.bool(defval = false, title = "Use 30% profit intermidiate sell")
 
-//Backtest dates
-fromMonth = input.int(defval = 10,title = "From Month", minval = 1, maxval = 12, group = 'Time Period Values')
-fromDay   = input.int(defval = 1,    title = "From Day", minval = 1, maxval = 31, group = 'Time Period Values')
-fromYear  = input.int(defval = 2021, title = "From Year", minval = 1970, group = 'Time Period Values')
-thruMonth = input.int(defval = 1,    title = "Thru Month", minval = 1, maxval = 12, group = 'Time Period Values')
-thruDay   = input.int(defval = 1,    title = "Thru Day", minval = 1, maxval = 31, group = 'Time Period Values')
-thruYear  = input.int(defval = 2112, title = "Thru Year", minval = 1970, group = 'Time Period Values')
 
-start     = timestamp(fromYear, fromMonth, fromDay, 00, 00)        // backtest start window
-finish    = timestamp(thruYear, thruMonth, thruDay, 23, 59)        // backtest finish window
-window()  => 
-    time >= start and time <= finish ? true : false       // create function "within window of time"
-    
 // inputs
 //Inputs of SAR Indicator
 sar1 = input.float(defval=0.0002, title='SAR value 1',step=0.0001, group = 'SAR Values')
@@ -519,51 +507,59 @@ else if final_option == 2
     quantity := (assert)/low[1]
     
 
+// LIVEMODE:: ENABLE / DISABLE
+enableLiveTest = input.bool(false, title="Enable live mode and stop backtesting", group="Livemode / Backtesting")
+curDate = timestamp('2023, 08, 06')
+targetDate = input.time(curDate, title="Start live mode from:", group="Livemode / Backtesting")
+// LIVEMODE:: END
 
-for i = 0 to 1 by 1
+if enableLiveTest == false or time > targetDate
+    for i = 0 to 1 by 1
+        if final_option == 1
+            if  ((buy_compound_f ==1 ) ) and strategy.position_size == 0
+                strategy.entry("long", strategy.long,comment = "BUY")
+            else if  ((buy_compound_f ==1 ) and ma_9 < strategy.position_avg_price *.99  ) 
+                strategy.entry("long", strategy.long,comment = "B2")
+            else if (sell_l4_f ) and int_sell_30
+                strategy.close("long", qty_percent = 25, comment = "SELL - 25%")    
+            else if (sell_l3_f ) and int_sell_25
+                strategy.close("long", qty_percent = 25, comment = "SELL - 25%") 
+            else if (sell_l2_f ) and int_sell_20
+                strategy.close("long", qty_percent = 25, comment = "SELL - 25%")
+            else if (sell_l1_f ) and int_sell_15
+                strategy.close("long", qty_percent = 25, comment = "SELL - 25%") 
+            else if (comp_sell1 ) and strategy.position_avg_price * profit_f < close
+                strategy.close("long", qty_percent = 100, comment = "SELL")
+        else if final_option == 2
+            if (b1 or b2 or b3)  and strategy.position_size == 0
+                strategy.entry("long", strategy.long, comment = "BUY")
+            else if (comp_sell1 or op_sell1 or op_sell2 or op_sell3 or op_sell4 ) 
+                strategy.close("long", comment = "SELL")
 
-    if final_option == 1
-        if  ((buy_compound_f ==1 ) and window()) and strategy.position_size == 0
-            strategy.entry("long", strategy.long,comment = "BUY")
-        else if  ((buy_compound_f ==1 ) and ma_9 < strategy.position_avg_price *.99 and window() ) 
-            strategy.entry("long", strategy.long,comment = "B2")
-        else if (sell_l4_f and window()) and int_sell_30
-            strategy.close("long", qty_percent = 25, comment = "SELL - 25%")    
-        else if (sell_l3_f and window()) and int_sell_25
-            strategy.close("long", qty_percent = 25, comment = "SELL - 25%") 
-        else if (sell_l2_f and window()) and int_sell_20
-            strategy.close("long", qty_percent = 25, comment = "SELL - 25%")
-        else if (sell_l1_f and window()) and int_sell_15
-            strategy.close("long", qty_percent = 25, comment = "SELL - 25%") 
-        else if (comp_sell1 and window()) and strategy.position_avg_price * profit_f < close
-            strategy.close("long", qty_percent = 100, comment = "SELL")
-    else if final_option == 2
-        if (b1 or b2 or b3) and window() and strategy.position_size == 0
-            strategy.entry("long", strategy.long, comment = "BUY")
-        else if (comp_sell1 or op_sell1 or op_sell2 or op_sell3 or op_sell4 ) and window()
-            strategy.close("long", comment = "SELL")
 
-bool PM_visible = input(true, "Show Expected Profit and Average Cost", group = 'Safty Margins')
-bool SM_visible = input(false, "Show Safty Grids", group = 'Safty Margins')
-bool gmb_visible = input(true, "Show General Market Bottoms", group = 'Indicators')
-bool cmb_visible = input(true, "Show Critical Market Ups and Bottoms", group = 'Indicators')
+// UNCOMMENT TO SEE THE INDICATORS
 
-//Graphs
-plot(PM_visible or final_option == 1 ? strategy.position_avg_price : na, color = color.green, title = "Average Cost", style = plot.style_circles)
-plot(PM_visible or final_option == 1 ? strategy.position_avg_price* profit_f :na, color = color.aqua, title = "Expected Profit", style = plot.style_circles)
-plot(SM_visible ? strategy.position_avg_price*0.95 : na, color = color.gray, title = "SAFTY MARGIN - 95%", linewidth = 1, style = plot.style_circles)
-plot(SM_visible ? strategy.position_avg_price*0.90 : na, color = color.gray, title = "SAFTY MARGIN - 90%", linewidth = 1, style = plot.style_circles)
-plot(SM_visible ? strategy.position_avg_price*0.85 : na, color = color.gray, title = "SAFTY MARGIN - 85%", linewidth = 1, style = plot.style_circles)
-plot(SM_visible ? strategy.position_avg_price*0.80 : na, color = color.gray, title = "SAFTY MARGIN - 80%", linewidth = 1, style = plot.style_circles)
-plot(ST_visible or final_option == 2 ? down_trend:na, "Down trend", color = plotcolor2,  linewidth=2)
-plot(ST_visible or final_option == 2 ? up_trend: na , "Up direction", color = plotcolor3, linewidth=2)
-plot(sar_visible or final_option == 2 ? sar:na, title='SAR', color=plotcolor4, linewidth=2)
-plot(sma500_visible or final_option == 2 ? SMA500:na,title='SMA500', color=plotcolor5, linewidth=3)
-plot(strategy.opentrades,                                       color = color.white,    title = "Count of Open Trades")
-plot(strategy.position_size,                                    color = color.white,    title = "Strategy Position Size")
-plot(profit_f2,                                                                         title = "Cumilative Profit")
-plot(quantity,                                                                          title = "Quantity")
-plotshape((buy_compound_f ==1 and ma_9 < strategy.position_avg_price and gmb_visible == true), style =  shape.arrowdown, color = color.yellow, size = size.large, text = "GB")
-plotshape((cb_compound ==100 and ma_9 < strategy.position_avg_price and cmb_visible == true), style =  shape.labeldown, color = color.green, size = size.normal, text = "DN", textcolor = color.black)
-plotshape((hh_compund ==100 and ma_9 > strategy.position_avg_price and cmb_visible == true), style =  shape.labeldown, color = color.red, size = size.normal, text = "UP", textcolor = color.black)
+// bool PM_visible = input(true, "Show Expected Profit and Average Cost", group = 'Safty Margins')
+// bool SM_visible = input(false, "Show Safty Grids", group = 'Safty Margins')
+// bool gmb_visible = input(true, "Show General Market Bottoms", group = 'Indicators')
+// bool cmb_visible = input(true, "Show Critical Market Ups and Bottoms", group = 'Indicators')
+
+// //Graphs
+// plot(PM_visible or final_option == 1 ? strategy.position_avg_price : na, color = color.green, title = "Average Cost", style = plot.style_circles)
+// plot(PM_visible or final_option == 1 ? strategy.position_avg_price* profit_f :na, color = color.aqua, title = "Expected Profit", style = plot.style_circles)
+// plot(SM_visible ? strategy.position_avg_price*0.95 : na, color = color.gray, title = "SAFTY MARGIN - 95%", linewidth = 1, style = plot.style_circles)
+// plot(SM_visible ? strategy.position_avg_price*0.90 : na, color = color.gray, title = "SAFTY MARGIN - 90%", linewidth = 1, style = plot.style_circles)
+// plot(SM_visible ? strategy.position_avg_price*0.85 : na, color = color.gray, title = "SAFTY MARGIN - 85%", linewidth = 1, style = plot.style_circles)
+// plot(SM_visible ? strategy.position_avg_price*0.80 : na, color = color.gray, title = "SAFTY MARGIN - 80%", linewidth = 1, style = plot.style_circles)
+// plot(ST_visible or final_option == 2 ? down_trend:na, "Down trend", color = plotcolor2,  linewidth=2)
+// plot(ST_visible or final_option == 2 ? up_trend: na , "Up direction", color = plotcolor3, linewidth=2)
+// plot(sar_visible or final_option == 2 ? sar:na, title='SAR', color=plotcolor4, linewidth=2)
+// plot(sma500_visible or final_option == 2 ? SMA500:na,title='SMA500', color=plotcolor5, linewidth=3)
+// plot(strategy.opentrades,                                       color = color.white,    title = "Count of Open Trades")
+// plot(strategy.position_size,                                    color = color.white,    title = "Strategy Position Size")
+// plot(profit_f2,                                                                         title = "Cumilative Profit")
+// plot(quantity,                                                                          title = "Quantity")
+// plotshape((buy_compound_f ==1 and ma_9 < strategy.position_avg_price and gmb_visible == true), style =  shape.arrowdown, color = color.yellow, size = size.large, text = "GB")
+// plotshape((cb_compound ==100 and ma_9 < strategy.position_avg_price and cmb_visible == true), style =  shape.labeldown, color = color.green, size = size.normal, text = "DN", textcolor = color.black)
+// plotshape((hh_compund ==100 and ma_9 > strategy.position_avg_price and cmb_visible == true), style =  shape.labeldown, color = color.red, size = size.normal, text = "UP", textcolor = color.black)
 
