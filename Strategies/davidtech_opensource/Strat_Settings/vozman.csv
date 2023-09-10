@@ -1,0 +1,122 @@
+Name,Value
+"__indicatorName","The ONE @DaviddTech"
+"Long Trades",true
+"Short Trades",true
+"Baseline","ABC"
+"Reverse?",false
+"ABC Entry Settings","Wicks"
+"Limit order for Entry?",false
+"Limit order on Close","close"
+"Use Limit exit",true
+"Allow Reversal Trades",false
+"Close trade on reverse strategy",false
+"Wait for confirmation of new entry on reversal",true
+"Enable Repainting?",false
+"Wait for confirmed?",true
+"Type of Take Profit","Fibonacci"
+"Type of Stoploss","ATR"
+"Stop Loss Long %",0.9
+"Take Profit Long %",3
+"Stop Loss Short %",0.9
+"Take Profit Short %",3
+"Take Protit Fibonacci LEVEL",2.216
+"Highest High lookback",50
+"Lowest Low Lookback",60
+"Profit factor Long (Risk to Reward)",2
+"Profit factor Short (Risk to Reward)",2
+"Use ATR Trailing Stop",false
+"Risk Adjustment",1
+"Swing Lookback",5
+"ATR length",28
+"ATR Trailing Stop Multiplier",1
+"ATR Trailing Stop Source","High/Low"
+"R:R To Trigger Exit",0
+"Set Max Daily DrawDown",false
+"Max Drawdown Daily (%)",20
+"Stop Loss Buffer - Long",4
+"Stop Loss Buffer - Short",4
+"Activate Min Risk:Reward?",true
+"Min Risk:Reward",1
+"Take Multi Profit X3",true
+"% to take at First TP",25
+"% to take at Second TP",25
+"% to take at Third TP",100
+"MA Type #1","EMA"
+"MA Type #2","HMA"
+"MA Type #3","VWAP"
+"MA Type #4","EMA"
+"MA Type #5","EMA"
+"MA Length #1",true
+"MA Length #2",true
+"MA Length #3",true
+"MA Length #4",true
+"MA Length #5",true
+"HMA BAR",false
+"Probability Formula",false
+"Probability Formula Length",100
+"Required Strong LONG Score",7
+"Required Strong SHORT Score",11
+"Divergence Look Left",12
+"Divergence Look Right",3
+"Use Divergences In Algo?",true
+"Divergence Importance Threshold",3
+"RSI Divergence Importance","Off"
+"Lookback",11
+"MACD Divergence Importance","Strong"
+"WaveTrend Divergence Importance","Strong"
+"Stochastic Divergence Importance","Very Strong"
+"RVI Divergence Importance","Off"
+"OBV Divergence Importance","Very Strong"
+"KST Divergence Importance","Weak"
+"AO Divergence Importance","Off"
+"EMA Trend Direction Importance","Very Strong"
+"EMA Pressure Importance","Strong"
+"Aroon","Off"
+"Waddah Attar","Off"
+"Bull vs. Bears","Off"
+"SuperTrend Direction Importance","Off"
+"SuperTrend Reversal Importance","Off"
+"Parabolic SAR Direction Importance","Weak"
+"Parabolic SAR Reversal Importance","Off"
+"HMA Trend Direction Importance","Weak"
+"HMA Pivot Importance","Off"
+"RSI Level Importance","Off"
+"RSI Cross 50-Line Importance","Off"
+"MACD Histogram Pivot Importance","Off"
+"MACD Cross Signal Importance","Off"
+"KST Cross Signal Importance","Off"
+"WaveTrend Cross Signal Importance","Off"
+"Stoch Cross Signal Importance","Off"
+"BollingerBands Contact Importance","Very Strong"
+"ATR Reversal Importance","Off"
+"RVI Position Importance","Off"
+"Support/Resistance Cross Importance","Off"
+"CMF Cross 50-Line Importance","Strong"
+"CMF Level Importance","Off"
+"VWAP Cross HMA Importance","Weak"
+"VWAP Trend Importance","Off"
+"Engulfing Candle Importance","Off"
+"Left Bars",5
+"Right Bars",4
+"Depth",12
+"Deviation",5
+"Enable Max Trades?",false
+"Max Trades Per Direction?",9
+"Use Time Session Filter",false
+"Timezone","GMT+2"
+"Time Session To Ignore Trades","00:00"
+"Use Strategy Alerts? - Please read the tooltip",true
+"Alert Frequency","Once per bar"
+"API Entry - Long","340f04f4_ENTER-LONG_BYBIT_BTC/USDT_340f04f4-TheOneABC-BTCUSDT_1H"
+"API Exit - Long","340f04f4_EXIT-LONG_BYBIT_BTC/USDT_340f04f4-TheOneABC-BTCUSDT_1H"
+"API Entry - Short","340f04f4_ENTER-SHORT_BYBIT_BTC/USDT_340f04f4-TheOneABC-BTCUSDT_1H"
+"API Exit - Short","340f04f4_EXIT-SHORT_BYBIT_BTC/USDT_340f04f4-TheOneABC-BTCUSDT_1H"
+"API First TP - Long","3commas,alerteron etc"
+"API First TP - Short","3commas,alerteron etc"
+"API Second TP - Long","3commas,alerteron etc"
+"API Second TP - Short","3commas,alerteron etc"
+"Plot Entry/SL/TP",true
+"Plot trail trigger price",true
+"Dashboard On / Off",true
+"Dashboard Distance",13
+"Notes"," "

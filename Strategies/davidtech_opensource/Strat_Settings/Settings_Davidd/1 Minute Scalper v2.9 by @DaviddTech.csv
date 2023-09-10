@@ -1,0 +1,142 @@
+Name,Value
+"__indicatorName","1 Minute Scalper v2.9 by @DaviddTech"
+"Long Trades",true
+"Short Trades",true
+"Type of Take Profit","R:R"
+"Type of Stoploss","ATR"
+"Stop Loss Long %",1.6
+"Take Profit Long %",2.8
+"Stop Loss Short %",1.6
+"Take Profit Short %",2.8
+"Stop Loss Long PIPS",100
+"Take Profit Long PIPS",200
+"Stop Loss Short PIPS",100
+"Take Profit Short PIPS",200
+"Highest High lookback",50
+"Lowest Low Lookback",60
+"Profit factor Long (Risk to Reward)",4
+"Profit factor Short (Risk to Reward)",4
+"ATR Multiplier For Stoploss",2
+"ATR Source","Source"
+"Source Upper ATR Stoploss","close"
+"Source Lower ATR Stoploss","close"
+"ATR Swing lookback",14
+"ATR length",14
+"Use ATR Trailing Stop",true
+"ATR Trailing Stop Multiplier",3
+"ATR Trailing Stop Source","Close"
+"Activate Trailing?","After Hit TP 2"
+"Use ATR Trailing Profit",true
+"Trigger Trailing Threshold % of Total TP",15
+"Set Max Total DrawDown",false
+"Max Drawdown (%)",20
+"Set Max Intraday Loss",false
+"Max Intraday Loss (%)",20
+"Set Max Consecutive Days with Losses",false
+"Max Consecutive Days with Losses",20
+"Stop Loss Buffer - Long",0
+"Stop Loss Buffer - Short",0
+"Position Size (BETA)","Manual"
+"% of Portfolio",10
+"Leverage",30
+"Show Liquadation line (BETA)",false
+"Block Trades if Liquadation is before SL (BETA)",false
+"Maintenance Margin Rate",0.5
+"Activate Threshold Risk:Reward?",false
+"Threshold Risk:Reward",2
+"Activate Max %",true
+"What if threshold breaks ?","Use Percentage Instead"
+"Threshold Max % SL",2
+"Take Multi Profit X3",true
+"% to take at First TP",25
+"Level 1",50
+"% to take at Second TP",25
+"Level 2",50
+"% to take at Third TP",100
+"Level 3",100
+"Enable Repainting?",false
+"Use Limit exit",true
+"Allow Reversal Trades",false
+"Close trade on reverse strategy",false
+"Wait for confirmation of new entry on reversal",false
+"Wait for confirmed?",true
+"Use Moving Averages?","Off"
+"Inverse Moving Averages?",false
+"Revserse all?",false
+"MA #1",true
+"MA Type #1","EMA"
+"MA Length #1",9
+"MA #2",true
+"MA Type #2","EMA"
+"MA Length #2",21
+"MA #3",true
+"MA Type #3","EMA"
+"MA Length #3",55
+"MA #4",true
+"MA Type #4","EMA"
+"MA Length #4",100
+"MA #5",true
+"MA Type #5","EMA"
+"MA Length #5",100
+"HMA BAR",false
+"HMA Length",100
+"Force Exit On Exit Signal ?",false
+"Enable Max Trades?",false
+"Max Trades Per Direction?",5
+"Enable ADX ?",true
+"ADX Type","Normal"
+"ADX Line Type","Static"
+"ADX Smoothing",14
+"DI Length",14
+"ADX Above line",30
+"ADX MA Length",100
+"Use DI for Direction ?",false
+"Min stoch length",19
+"Max stoch length Smoothing",100
+"Stoch Smoothing",2
+"Inverse adaptive",false
+"Enable HA Overlay ?",true
+"Volume confirm?",false
+"TDFI Lookback",20
+"Version to use?","v1"
+"Filter High",0.05
+"Filter Low",-0.05
+"MMA Length v2",13
+"MMA Mode v2","ema"
+"SMMA Mode v2","ema"
+"N Length v2",3
+"Enable RSI ?",false
+"RSI Source","close"
+"RSI Length",14
+"RSI Overbrought",51
+"RSI Oversold",49
+"Enable MFI ?",false
+"MFI Source","hlc3"
+"MFI Length",14
+"MFI Overbrought",51
+"MFI Oversold",49
+"Enable Flat Market ?",true
+"Flat Market Above Line",30
+"Use vWap / ema",false
+"VWap Source","close"
+"VWap2 Source","close"
+"Vwap Length",3
+"Use Time Session Filter",false
+"Timezone","GMT+2"
+"Time Session To Ignore Trades","00:00"
+"Use Date Session Filter",false
+"Mon",true
+"Tue",true
+"Wed",true
+"Thur",true
+"Fri",true
+"Sat",true
+"Sun",true
+"Use Strategy Alerts? - Please read the tooltip",false
+"Alert Frequency","Once per bar"
+"Plot Entry/SL/TP",true
+"Plot trail trigger price",true
+"Dashboard On / Off",true
+"Log On / Off",false
+"Dashboard Distance",13
+"Notes"," "

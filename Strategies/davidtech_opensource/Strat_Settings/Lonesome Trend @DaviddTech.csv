@@ -1,0 +1,95 @@
+Name,Value
+"__indicatorName","Lonesome Trend @DaviddTech"
+"Long Trades",true
+"Short Trades",true
+"Type of Take Profit","R:R"
+"Type of Stoploss","Custom"
+"Stop Loss Long %",1.6
+"Take Profit Long %",2.8
+"Stop Loss Short %",1.6
+"Take Profit Short %",2.8
+"Highest High lookback",5
+"Lowest Low Lookback",5
+"Profit factor Long (Risk to Reward)",1.6
+"Profit factor Short (Risk to Reward)",1.6
+"Use ATR Trailing Stop",false
+"Risk Adjustment",1
+"Swing Lookback",2
+"ATR length",10
+"ATR Trailing Stop Multiplier",1
+"ATR Trailing Stop Source","High/Low"
+"R:R To Trigger Exit",0
+"Set Max Total DrawDown",false
+"Max Drawdown (%)",20
+"Stop Loss Buffer - Long",0
+"Stop Loss Buffer - Short",0
+"Take Multi Profit X3",false
+"% to take at First TP",1
+"% to take at Second TP",1
+"% to take at Third TP",100
+"Enable Repainting?",false
+"Use Limit exit",true
+"Allow Reversal Trades",true
+"Close trade on reverse strategy",true
+"Wait for confirmation of new entry on reversal",false
+"Use Moving Averages?",false
+"Inverse Moving Averages?",false
+"Revserse all?",false
+"MA Type #1","EMA"
+"MA Type #2","EMA"
+"MA Type #3","EMA"
+"MA Type #4","EMA"
+"MA Type #5","EMA"
+"MA Length #1",true
+"MA Length #2",true
+"MA Length #3",true
+"MA Length #4",true
+"MA Length #5",true
+"HMA BAR",false
+"Pivot Point Period",2
+"ATR Factor",3
+"ATR Period",10
+"Show Pivot Points",false
+"Show Buy/Sell Labels",true
+"Show PP Center Line",false
+"Show Support/Resistance",false
+"Force Exit On Exit Signal ?",false
+"Enable Max Trades?",false
+"Max Trades Per Direction?",7
+"Enable ADX ?",true
+"ADX Smoothing",14
+"DI Length",14
+"Above line",21
+"Enable RSI ?",false
+"RSI Source","close"
+"RSI Length",14
+"Overbrought",50
+"Oversold",50
+"Enable MFI ?",false
+"MFI Source","hlc3"
+"MFI Length",14
+"Enable Flat Market ?",true
+"Line",18
+"Use vWap / ema",false
+"VWap Source","close"
+"VWap2 Source","close"
+"Vwap Length",3
+"Use Time Session Filter",false
+"Timezone","GMT+2"
+"Time Session To Ignore Trades","00:00"
+"Wait for confirmed?",true
+"Use Strategy Alerts? - Please read the tooltip",false
+"Alert Frequency","Once per bar"
+"API Entry - Long","3commas,alerteron etc"
+"API Exit - Long","3commas,alerteron etc"
+"API Entry - Short","3commas,alerteron etc"
+"API Exit - Short","3commas,alerteron etc"
+"API First TP - Long","3commas,alerteron etc"
+"API First TP - Short","3commas,alerteron etc"
+"API Second TP - Long","3commas,alerteron etc"
+"API Second TP - Short","3commas,alerteron etc"
+"Plot Entry/SL/TP",true
+"Plot trail trigger price",true
+"Dashboard On / Off",true
+"Dashboard Distance",13
+"Notes"," "

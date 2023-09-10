@@ -1,0 +1,141 @@
+
+
+
+
+
+
+amplitude = input(title="Amplitude", defval=4, group="HalfTrend")
+channeldevliation = input(title="Channel devliation", defval=2, group="HalfTrend")
+showArrows = input(title="Show Arrows", defval=false, group="HalfTrend")
+showChannels = input(title="Show Channels", defval=false, group="HalfTrend")
+
+var int trend = 0
+var int nextTrend = 0
+var float maxLowPrice = nz(low[1], low)
+var float minHighPrice = nz(high[1], high)
+
+var float upl = 0.0
+var float downl = 0.0
+float atrHigh = 0.0
+float atrLow = 0.0
+float arrowupl = na
+float arrowdownl = na
+
+atr2 = atr(100) / 2
+devl = channeldevliation * atr2
+
+highPrice = high[abs(highestbars(amplitude))]
+lowPrice = low[abs(lowestbars(amplitude))]
+highma = sma(high, amplitude)
+lowma = sma(low, amplitude)
+
+if nextTrend == 1
+	maxLowPrice := max(lowPrice, maxLowPrice)
+
+	if highma < maxLowPrice and close < nz(low[1], low)
+		trend := 1
+		nextTrend := 0
+		minHighPrice := highPrice
+else
+	minHighPrice := min(highPrice, minHighPrice)
+
+	if lowma > minHighPrice and close > nz(high[1], high)
+		trend := 0
+		nextTrend := 1
+		maxLowPrice := lowPrice
+
+if trend == 0
+	if not na(trend[1]) and trend[1] != 0
+		upl := na(downl[1]) ? downl : downl[1]
+		arrowupl := upl - atr2
+	else
+		upl := na(upl[1]) ? maxLowPrice : max(maxLowPrice, upl[1])
+	atrHigh := upl + devl
+	atrLow := upl - devl
+else
+	if not na(trend[1]) and trend[1] != 1 
+		downl := na(upl[1]) ? upl : upl[1]
+		arrowdownl := downl + atr2
+	else
+		downl := na(downl[1]) ? minHighPrice : min(minHighPrice, downl[1])
+	atrHigh := downl + devl
+	atrLow := downl - devl
+
+ht = trend == 0 ? upl : downl
+
+var color buyColor = color.blue
+var color sellColor = color.red
+
+htColor = trend == 0 ? buyColor : sellColor
+htPlot = plot(ht, title="HalfTrend", linewidth=2, color=htColor)
+
+atrHighPlot = plot(showChannels ? atrHigh : na, title="ATR High", style=plot.style_circles, color=sellColor)
+atrLowPlot = plot(showChannels ? atrLow : na, title="ATR Low", style=plot.style_circles, color=buyColor)
+
+fill(htPlot, atrHighPlot, title="ATR High Ribbon", color=sellColor)
+fill(htPlot, atrLowPlot, title="ATR Low Ribbon", color=buyColor)
+
+buySignal = not na(arrowupl) and (trend == 0 and trend[1] == 1)
+sellSignal = not na(arrowdownl) and (trend == 1 and trend[1] == 0)
+
+plotshape(showArrows and buySignal ? atrLow : na, title="Arrow upl", style=shape.triangleup, location=location.absolute, size=size.tiny, color=buyColor)
+plotshape(showArrows and sellSignal ? atrHigh : na, title="Arrow downl", style=shape.triangledown, location=location.absolute, size=size.tiny, color=sellColor)
+
+
+
+
+// Part 2 RSI
+usersip2 = input(true, title = 'Use RSI?', type = input.bool, group="RSI Settings")
+
+lentwo = input(2, minval=1, title="Length", group="RSI Settings")
+srctwo = input(close, "Source", type = input.source, group="RSI Settings")
+uptwo = rma(max(change(srctwo), 0), lentwo)
+downtwo = rma(-min(change(srctwo), 0), lentwo)
+
+
+rsitwo = downtwo == 0 ? 100 : uptwo == 0 ? 0 : 100 - (100 / (1 + uptwo / downtwo))
+
+lentwotop = input(90, minval=1, title="Overbrought", group="RSI Settings")
+lentwobottom = input(10, minval=1, title="Oversold", group="RSI Settings")
+
+
+
+
+triggerhl = input(true, title = 'Only trigger above/below high/low?', type = input.bool, group="Trigger Settings")
+triggerhl_src_long_main = input(high, "Trigger Source Long", type = input.source, group="Trigger Settings")
+triggerhl_src_short_main = input(low, "Trigger Source Short", type = input.source, group="Trigger Settings")
+triggerhl_src_long = input(high, "Previous Trigger Long", type = input.source, group="Trigger Settings")
+triggerhl_src_short = input(low, "Previous Trigger Short", type = input.source, group="Trigger Settings")
+
+
+rsilong= usersip2 ? rsitwo < lentwobottom : true
+rsishort = usersip2 ? rsitwo > lentwotop : true
+
+
+longTrend = trend == 0 
+shortTrend = trend == 0 ? false : true
+
+plotshape(longTrend ? -5 : na, title = 'Bull', style=shape.square,  location=location.bottom, size = size.tiny,color=color.green)//,  transp = 15
+plotshape(shortTrend ? -5 : na, title = 'Bear', style=shape.square,  location=location.bottom, size = size.tiny,color=color.red)//,  transp = 15
+
+plotchar(rsishort ? 105 : na , title = 'RSI Short', char='·', color = color.new(color.red,70), location = location.abovebar, size = size.small)
+plotchar(rsilong ? -107 : na, title = 'RSI Long', char='·', color = color.new(color.green,70), location = location.belowbar, size = size.small)
+
+
+previouscn_short = rsishort and shortTrend 
+previouscn_long = rsilong and longTrend 
+
+
+
+stepOneShort = shortTrend   // e.g  stepTwoShort = crossover(a,b) and a=b
+stepTwoShort = (triggerhl ? triggerhl_src_short_main < triggerhl_src_short[1]  : true) and rsishort[1] and shortTrend  // e.g  stepTwoShort = crossover(a,b) and a=b
+stepThreeShort = true 
+
+stepOneLong = longTrend
+stepTwoLong = (triggerhl ? triggerhl_src_long_main > triggerhl_src_long[1] : true) and longTrend and rsilong[1] 
+stepThreeLong = true
+
+
+
+plotshape(triggerhl_src_short_main < triggerhl_src_short[1] and shortTrend  and rsishort[1] ?  -15 : na, title = 'Bull Candle', style=shape.square,  location=location.bottom, size = size.tiny,color=color.yellow)//,  transp = 15
+plotshape(triggerhl_src_long_main > triggerhl_src_long[1] and longTrend and rsilong[1]  ?  -15 : na, title = 'Bear Candle', style=shape.square,  location=location.bottom, size = size.tiny,color=color.yellow)//,  transp = 15

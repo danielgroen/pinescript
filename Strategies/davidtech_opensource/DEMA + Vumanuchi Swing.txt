@@ -1,0 +1,298 @@
+//@version=5
+// Copyright all rights reserved to DaviddTech
+strategy('DEMA + Vumanuchi Swing', overlay=true, max_labels_count=500)
+// Timeframe 5m, BTCUSDT
+
+
+
+// ****************************************************************************//
+// ---------------------------------> Edit here ------------------------------ //
+// ****************************************************************************//
+st_isPlot = input.bool(true, 'Plot strategy indicators(except oscillators)', group='Strategy: base')
+// st_timeStart = input.time(timestamp("2021-01-01T00:00:00"), "Backtest Start Date")
+// st_timeEnd = input.time(timestamp("2022-01-01T00:00:00"), "Backtest End Date")
+// st_isTime = time >= st_timeStart and time < st_timeEnd
+st_isTime = true
+
+// Calculations
+
+// #####################################
+// DEMA
+st_demaLen = input.int(200, title='DEMA Length', group='Strategy: base')
+st_dema = request.security(syminfo.tickerid, '60', (2 * ta.ema(close, st_demaLen) - ta.ema(ta.ema(close, st_demaLen), st_demaLen)))
+plot(st_isPlot ? st_dema : na, 'DEMA')
+
+// #####################################
+// Range Filter - B&S Signals, @Jaza
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Functions
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Range Size Function
+st_rng_size(x, qty, n)=>
+//    AC       = Cond_EMA(abs(x - x[1]), 1, n)
+    wper      = (n*2) - 1
+    avrng     = ta.ema(math.abs(x - x[1]), n)
+    AC = ta.ema(avrng, wper)*qty
+    //st_rng_size = AC
+    AC
+
+//Range Filter Function
+st_rng_filt(x, rng_, n)=>
+    r          = rng_
+    var rfilt  = array.new_float(2, x)
+    array.set(rfilt, 1, array.get(rfilt, 0))
+    if x - r > array.get(rfilt, 1)
+        array.set(rfilt, 0, x - r)
+    if x + r < array.get(rfilt, 1)
+        array.set(rfilt, 0, x + r)
+    rng_filt1 = array.get(rfilt, 0)
+
+    hi_band   = rng_filt1 + r
+    lo_band   = rng_filt1 - r
+    st_rng_filt_val  = rng_filt1
+    [hi_band, lo_band, st_rng_filt_val]
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Inputs
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Range Source
+st_rng_src = input.source(defval=close,title="Swing Source", group='Strategy:Range Filter')
+
+//Range Period
+st_rng_per = input.int(defval=12, minval=1, title="Swing Period", group='Strategy:Range Filter')
+
+//Range Size Inputs
+st_rng_qty = input.float(defval=3, minval=0.0000001, title="Swing Multiplier", group='Strategy:Range Filter')
+
+//Bar Colors
+st_use_barcolor = input.bool(defval=false, title="Bar Colors On/Off", group='Strategy:Range Filter')
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Definitions
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Range Filter Values
+[st_h_band, st_l_band, st_filt] = st_rng_filt(st_rng_src, st_rng_size(st_rng_src, st_rng_qty, st_rng_per), st_rng_per)
+
+//Direction Conditions
+var st_fdir = 0.0
+st_fdir    := st_filt > st_filt[1] ? 1 : st_filt < st_filt[1] ? -1 : st_fdir
+st_upward   = st_fdir==1 ? 1 : 0
+st_downward = st_fdir==-1 ? 1 : 0
+
+//Trading Condition
+st_longCond = st_rng_src > st_filt and st_rng_src > st_rng_src[1] and st_upward > 0 or st_rng_src > st_filt and st_rng_src < st_rng_src[1] and st_upward > 0
+st_shortCond = st_rng_src < st_filt and st_rng_src < st_rng_src[1] and st_downward > 0 or st_rng_src < st_filt and st_rng_src > st_rng_src[1] and st_downward > 0
+
+st_condIni = 0
+st_condIni := st_longCond ? 1 : st_shortCond ? -1 : st_condIni[1]
+st_rangeFilterLongCondition = st_longCond and st_condIni[1] == -1
+st_rangeFilterShortCondition = st_shortCond and st_condIni[1] == 1
+
+//Colors
+st_filt_color = st_upward ? #05ff9b : st_downward ? #ff0583 : #cccccc
+st_bar_color  = st_upward and (st_rng_src > st_filt) ? (st_rng_src > st_rng_src[1] ? #05ff9b : #00b36b) :
+             st_downward and (st_rng_src < st_filt) ? (st_rng_src < st_rng_src[1] ? #ff0583 : #b8005d) : #cccccc
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Outputs
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Filter Plot
+st_filt_plot = plot(st_isPlot ? st_filt : na, color=st_filt_color, transp=67, linewidth=3, title="Filter")
+
+//Band Plots
+st_h_band_plot = plot(st_isPlot ? st_h_band : na, color=color.new(#05ff9b, 100), title="High Band")
+st_l_band_plot = plot(st_isPlot ? st_l_band : na, color=color.new(#ff0583, 100), title="Low Band")
+
+//Band Fills
+fill(st_h_band_plot, st_filt_plot, color=color.new(#00b36b, 92), title="High Band Fill")
+fill(st_l_band_plot, st_filt_plot, color=color.new(#b8005d, 92), title="Low Band Fill")
+
+//Bar Color
+barcolor(st_isPlot and st_use_barcolor ? st_bar_color : na)
+
+//Plot Buy and Sell Labels
+plotshape(st_isPlot ? st_rangeFilterLongCondition : na, title = "Buy Signal", text ="BUY", textcolor = color.white, style=shape.labelup, size = size.normal, location=location.belowbar, color = color.new(color.green, 0))
+plotshape(st_isPlot ? st_rangeFilterShortCondition : na, title = "Sell Signal", text ="SELL", textcolor = color.white, style=shape.labeldown, size = size.normal, location=location.abovebar, color = color.new(color.red, 0))
+
+
+// #####################################
+// st_QQE Mod By Glaz, Modified Mikhel00
+
+st_RSI_Period = input.int(6, title='RSI Length', group='Strategy: st_QQE Mod')
+st_SF = input.int(5, title='RSI Smoothing', group='Strategy: st_QQE Mod')
+st_QQE = input.float(3, title='Fast st_QQE Factor', group='Strategy: st_QQE Mod')
+st_ThreshHold = input.int(3, title="Thresh-hold", group='Strategy: st_QQE Mod')
+
+st_QQESrc = input(close, title="RSI Source", group='Strategy: st_QQE Mod')
+
+st_Wilders_Period = st_RSI_Period * 2 - 1
+
+st_Rsi = ta.rsi(st_QQESrc, st_RSI_Period)
+st_RsiMa = ta.ema(st_Rsi, st_SF)
+st_AtrRsi = math.abs(st_RsiMa[1] - st_RsiMa)
+st_MaAtrRsi = ta.ema(st_AtrRsi, st_Wilders_Period)
+st_qqe_dar = ta.ema(st_MaAtrRsi, st_Wilders_Period) * st_QQE
+
+st_qqe_longband = 0.0
+st_qqe_shortband = 0.0
+st_qqe_trend = 0
+
+st_qqe_DeltaFastAtrRsi = st_qqe_dar
+st_qqe_RSIndex = st_RsiMa
+st_qqe_newshortband = st_qqe_RSIndex + st_qqe_DeltaFastAtrRsi
+st_qqe_newlongband = st_qqe_RSIndex - st_qqe_DeltaFastAtrRsi
+st_qqe_longband := st_qqe_RSIndex[1] > st_qqe_longband[1] and st_qqe_RSIndex > st_qqe_longband[1] ?
+   math.max(st_qqe_longband[1], st_qqe_newlongband) : st_qqe_newlongband
+st_qqe_shortband := st_qqe_RSIndex[1] < st_qqe_shortband[1] and st_qqe_RSIndex < st_qqe_shortband[1] ?
+   math.min(st_qqe_shortband[1], st_qqe_newshortband) : st_qqe_newshortband
+st_qqe_cross_1 = ta.cross(st_qqe_longband[1], st_qqe_RSIndex)
+st_qqe_trend := ta.cross(st_qqe_RSIndex, st_qqe_shortband[1]) ? 1 : st_qqe_cross_1 ? -1 : nz(st_qqe_trend[1], 1)
+st_qqe_FastAtrRsiTL = st_qqe_trend == 1 ? st_qqe_longband : st_qqe_shortband
+
+
+
+st_qqe_BolingerLen = input.int(50, minval=1, title="Bollinger Length", group='Strategy: st_QQE Mod')
+st_qqe_BolingerMult = input.float(0.35, minval=0.001, maxval=5, step=0.1, title="BB Multiplier", group='Strategy: st_QQE Mod')
+st_qqe_Bolingerbasis = ta.sma(st_qqe_FastAtrRsiTL - 50, st_qqe_BolingerLen)
+st_qqe_BolingerDev = st_qqe_BolingerMult * ta.stdev(st_qqe_FastAtrRsiTL - 50, st_qqe_BolingerLen)
+st_qqe_BolingerUpper = st_qqe_Bolingerbasis + st_qqe_BolingerDev
+st_qqe_BolingerLower = st_qqe_Bolingerbasis - st_qqe_BolingerDev
+st_qqe_BolingerColor_bar = st_RsiMa - 50 > st_qqe_BolingerUpper ? #00c3ff : st_RsiMa - 50 < st_qqe_BolingerLower ? #ff0062 : color.gray
+
+
+// st_QQZero cross
+st_QQEzlong = 0
+st_QQEzlong := nz(st_QQEzlong[1])
+st_QQEzshort = 0
+st_QQEzshort := nz(st_QQEzshort[1])
+st_QQEzlong := st_qqe_RSIndex >= 50 ? st_QQEzlong + 1 : 0
+st_QQEzshort := st_qqe_RSIndex < 50 ? st_QQEzshort + 1 : 0
+
+
+// st_QQZero = hline(0, color=color.white, linestyle=hline.style_dotted, linewidth=1)
+
+////////////////////////////////////////////////////////////////
+
+st_RSI_Period2 = input(6, title='RSI2 Length', group='Strategy: st_QQE Mod')
+st_SF2 = input.int(5, title='RSI2 Smoothing', group='Strategy: st_QQE Mod')
+st_QQE2 = input.float(1.61, title='Fast st_QQE2 Factor', group='Strategy: st_QQE Mod')
+st_ThreshHold2 = input.int(3, title="Thresh-hold2", group='Strategy: st_QQE Mod')
+
+st_RSISrc2 = input.source(close, title="RSI2 Source", group='Strategy: st_QQE Mod')
+
+
+st_Wilders_Period2 = st_RSI_Period2 * 2 - 1
+
+
+st_Rsi2 = ta.rsi(st_RSISrc2, st_RSI_Period2)
+st_RsiMa2 = ta.ema(st_Rsi2, st_SF2)
+st_AtrRsi2 = math.abs(st_RsiMa2[1] - st_RsiMa2)
+st_MaAtrRsi2 = ta.ema(st_AtrRsi2, st_Wilders_Period2)
+st_qqe_dar2 = ta.ema(st_MaAtrRsi2, st_Wilders_Period2) * st_QQE2
+st_qqe_longband2 = 0.0
+st_qqe_shortband2 = 0.0
+st_qqe_trend2 = 0
+
+st_qqe_DeltaFastAtrRsi2 = st_qqe_dar2
+st_qqe_RSIndex2 = st_RsiMa2
+st_qqe_newshortband2 = st_qqe_RSIndex2 + st_qqe_DeltaFastAtrRsi2
+st_qqe_newlongband2 = st_qqe_RSIndex2 - st_qqe_DeltaFastAtrRsi2
+st_qqe_longband2 := st_qqe_RSIndex2[1] > st_qqe_longband2[1] and st_qqe_RSIndex2 > st_qqe_longband2[1] ?
+   math.max(st_qqe_longband2[1], st_qqe_newlongband2) : st_qqe_newlongband2
+st_qqe_shortband2 := st_qqe_RSIndex2[1] < st_qqe_shortband2[1] and st_qqe_RSIndex2 < st_qqe_shortband2[1] ?
+   math.min(st_qqe_shortband2[1], st_qqe_newshortband2) : st_qqe_newshortband2
+st_qqe_cross_2 = ta.cross(st_qqe_longband2[1], st_qqe_RSIndex2)
+st_qqe_trend2 := ta.cross(st_qqe_RSIndex2, st_qqe_shortband2[1]) ? 1 : st_qqe_cross_2 ? -1 : nz(st_qqe_trend2[1], 1)
+st_qqe_FastAtrRsi2TL = st_qqe_trend2 == 1 ? st_qqe_longband2 : st_qqe_shortband2
+
+
+// st_QQZero cross
+st_QQE2zlong = 0
+st_QQE2zlong := nz(st_QQE2zlong[1])
+st_QQE2zshort = 0
+st_QQE2zshort := nz(st_QQE2zshort[1])
+st_QQE2zlong := st_qqe_RSIndex2 >= 50 ? st_QQE2zlong + 1 : 0
+st_QQE2zshort := st_qqe_RSIndex2 < 50 ? st_QQE2zshort + 1 : 0
+//
+
+st_hcolor2 = st_RsiMa2 - 50 > st_ThreshHold2 ? color.silver :
+   st_RsiMa2 - 50 < 0 - st_ThreshHold2 ? color.silver : na
+// plot(st_qqe_FastAtrRsi2TL - 50, title='st_QQE Line', color=color.white, transp=0, linewidth=2)
+// plot(st_RsiMa2 - 50, color=st_hcolor2, transp=50, title='Histo2', style=plot.style_columns)
+
+st_Greenbar1 = st_RsiMa2 - 50 > st_ThreshHold2
+st_Greenbar2 = st_RsiMa - 50 > st_qqe_BolingerUpper
+
+st_Redbar1 = st_RsiMa2 - 50 < 0 - st_ThreshHold2
+st_Redbar2 = st_RsiMa - 50 < st_qqe_BolingerLower
+// plot(st_Greenbar1 and st_Greenbar2 == 1 ? st_RsiMa2 - 50 : na, title="st_QQE Up", style=plot.style_columns, color=#00c3ff, transp=0)
+// plot(st_Redbar1 and st_Redbar2 == 1 ? st_RsiMa2 - 50 : na, title="st_QQE Down", style=plot.style_columns, color=#ff0062, transp=0)
+
+
+// CALCULATION
+
+// LONG
+// 1. Price above the DEMA
+st_isPriceAboveDEMA = low > st_dema
+// 2. Blue Bar on QQE Mod
+st_isQQEUp = st_Greenbar1 and st_Greenbar2 == 1
+
+// 3. Enter on the Vumachu Buy Signal
+
+enter_long = st_isTime and st_isPriceAboveDEMA and st_isQQEUp and st_rangeFilterLongCondition
+
+// Stop-Loss For Longs: At the Vumanchu buy signal below the trigger candle.
+// Take profit For Longs: When a Vumanchu short signal appears while in profit or at break-even.
+var float st_longStopLoss = na
+if enter_long
+    st_longStopLoss := low //st_l_band
+st_isLongTakeProfit = high >  close + (st_h_band - close) * 2//st_rangeFilterShortCondition
+st_isLongStopLoss = strategy.position_size > 0 and low < st_longStopLoss
+
+
+// SHORT
+// 1. Price below the DEMA
+st_isPriceBelowDEMA = high < st_dema
+// 2. Red Bar on QQE Mod
+st_isQQEDown = st_Redbar1 and st_Redbar2 == 1
+// 3. Enter on the Vumanchu Sell Signal
+
+
+enter_short = st_isTime and st_isPriceBelowDEMA and st_isQQEDown and st_rangeFilterShortCondition
+// Stop-Loss For Shorts: At the Vumanchu sell signal above the trigger candle.
+// Take profit or Shorts: When a Vumanchu long signal appears while in profit or at break-even.
+var float st_shortStopLoss = na
+if enter_short
+    st_shortStopLoss := high //st_h_band
+st_isShortTakeProfit = low < close - (close -  st_l_band) * 2// st_rangeFilterLongCondition
+st_isShortStopLoss = strategy.position_size > 0 and high > st_shortStopLoss
+
+
+// plot(st_isPlot  ? st_shortStopLoss : na, color=color.red)
+// plot(st_isPlot ? st_shortTakeProfit : na, color=color.green)
+
+
+force_exit_signal_short = false
+force_exit_signal_long = false
+// Dashboard lights
+_take_long_one = st_isPriceAboveDEMA
+_take_long_two = st_isPriceAboveDEMA and st_isQQEUp
+_take_long_three = enter_long
+
+_take_short_one = st_isPriceBelowDEMA
+_take_short_two = st_isPriceBelowDEMA and st_isQQEDown
+_take_short_three = enter_short
+
+
+// TEST
+
+strategy.entry(id='Long', direction=strategy.long, when=enter_long, comment='Long')
+strategy.close('Long', when=st_isLongStopLoss or st_isLongTakeProfit, comment='Long exit')
+
+strategy.entry(id='Short', direction=strategy.short, when=enter_short, comment='Short')
+strategy.close('Short', when=st_isShortStopLoss or st_isShortTakeProfit, comment='Short exit')
+

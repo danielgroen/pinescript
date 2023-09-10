@@ -1,0 +1,5 @@
+
+strategy.exit('Take 1st Target short', 'Short', qty_percent=multiProfitStep1, limit=stp1, alert_message=threecommasexit_shortx1)
+strategy.exit('Take 2nd Target short', 'Short', limit=stp2, qty_percent=multiProfitStep2, alert_message=threecommasexit_shortx2)
+strategy.exit('Take 3rd Target short', 'Short', limit=stp3, qty_percent=multiProfitStep3, alert_message=threecommasexit_short)
+strategy.close('Short', stopLevelReducShort, qty_percent=100, alert_message=threecommasexit_short)

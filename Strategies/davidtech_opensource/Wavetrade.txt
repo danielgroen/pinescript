@@ -1,0 +1,37 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © DaviddTech
+
+//@version=5
+indicator('Waves DaviddTech')
+
+
+//WAVETREND CROSS▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+
+hline(110, color=color.new(#ffffff, 75))
+hline(-90, color=color.new(#ffffff, 75))
+
+n1 = 9
+n2 = 12
+ap = hlc3
+esa = ta.ema(ap, n1)
+d1 = ta.ema(math.abs(ap - esa), n1)
+ci = (ap - esa) / (0.015 * d1)
+tci = ta.ema(ci, n2)
+hline = 0
+wt1 = tci
+wt2 = ta.sma(wt1, 4)
+
+wt1color = wt1 > 0 ? #00bcd4 : #003399
+wtcrossuppre = wt1 > wt2 and wt1[1] < wt2[1] and wt2 < -10
+wtcrossdownpre = wt1 < wt2 and wt1[1] > wt2[1] and wt2 > 10
+wtcrossup = wtcrossuppre or wtcrossuppre[1] or wtcrossuppre[2]
+wtcrossdown = wtcrossdownpre or wtcrossdownpre[1] or wtcrossdownpre[2]
+
+plot(wt1, style=plot.style_areabr, color=color.new(wt1color, 50))
+plot(wt2, style=plot.style_areabr, color=color.new(#5d606b, 50))
+plot(wt2, color=color.new(#000000, 50), linewidth=2)
+plot(wtcrossuppre ? wt2 : na, title='Cross Up Circles', color=color.new(#33cc33, 0), style=plot.style_circles, linewidth=3)
+plot(wtcrossdownpre ? wt2 : na, title='Cross down Circles', color=color.new(#ff0000, 0), style=plot.style_circles, linewidth=3)
+
+
+

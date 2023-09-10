@@ -1,0 +1,183 @@
+//@version=5
+// Copyright all rights reserved to DaviddTech
+// @akumidv
+strategy('Hoffman Trading Strategy', overlay=true, max_labels_count=500)
+// SOURCE: https://www.youtube.com/watch?v=r5fE3JhkdGI
+// Timeframe 15m, BTCUSDT
+
+
+
+// ****************************************************************************//
+// ---------------------------------> Edit here ------------------------------ //
+// ****************************************************************************//
+st_isPlot = input.bool(true, "Plot strategy indicators(except oscillators)", group='Strategy: base')
+st_gap = input.float(title="Gap Above High or Below Long for limit order %", defval=0.2, group='Strategy: base')
+st_gap := st_gap/100
+
+
+// Hoffman_Inventory Retracement Bar, by ucsgears
+st_inventoryRetracement = input.int(45, title="Inventory Retracement Percentage %", maxval=100)
+
+st_candeRange = math.abs(high - low) // Candle Range
+st_candleBody =  math.abs(close - open) // Candle Body
+st_inventoryRetracementPercent = st_inventoryRetracement/100 // Percent to Decimal
+st_rangeVerification = st_candleBody < st_inventoryRetracementPercent * st_candeRange // Range Verification
+
+// Price Level for Retracement
+st_pricLevelLow = low + (st_inventoryRetracementPercent * st_candeRange)
+st_priceLevelHigh = high - (st_inventoryRetracementPercent * st_candeRange)
+st_longBar = st_rangeVerification == 1 and high > st_priceLevelHigh and close < st_priceLevelHigh and open < st_priceLevelHigh
+st_shortBar = st_rangeVerification == 1 and low < st_pricLevelLow and close > st_pricLevelLow and open > st_pricLevelLow
+
+st_inventoryPriceLine = st_longBar ? st_priceLevelHigh : st_shortBar ? st_pricLevelLow : (st_pricLevelLow + st_priceLevelHigh)/2 // Line Definition
+plotshape(st_isPlot ? st_longBar : na, style=shape.triangledown, location=location.abovebar, color=color.red, title = "Long Bar")
+plotshape(st_isPlot ? st_shortBar : na, style=shape.triangleup, location=location.belowbar, color=color.green, title = "Short Bar")
+// plot(st_isPlot ? st_inventoryPriceLine : na, style = plot.style_line, color = color.blue, title = "Inventory Bar Retracement Price Line")
+
+
+// Rob Hoffman - Overlay Set by ucsgears
+// st_fastSpeedMA = ta.sma(close,3) // a
+st_slowSpeedMA = ta.sma(close,5) // b
+
+st_fastPrimaryTrendMA = ta.ema(close,18) // c
+st_slowPrimaryTrendMA = ta.ema(close,20) // d
+
+st_trendMA1 = ta.sma(close,50) // e
+st_trendMA2 = ta.sma(close,89) // f
+st_trendMA3 = ta.ema(close,144) // g
+// st_trendMA4 = ta.sma(close,200) // h
+
+st_noTrendZoneMiddleMA = ta.ema(close,35) // k
+st_trueRangeRMA = ta.rma(ta.tr,35) // r
+st_noTrendZoneUpperMA = st_noTrendZoneMiddleMA + st_trueRangeRMA *0.5 // ku
+// st_noTrendZoneLowerMA = st_noTrendZoneMiddleMA - st_trueRangeRMA *0.5 // kl
+
+// plot(st_isPlot ? st_fastSpeedMA : na, title = "Fast Speed Line", linewidth = 2, color = #0000FF)
+
+plot(st_isPlot ? st_slowSpeedMA : na, title = "Slow Speed Line", linewidth = 2, color = color.fuchsia) // Pink
+plot(st_isPlot ? st_fastPrimaryTrendMA : na, title = "Fast Primary Trend Line", linewidth = 3, color = #00FF00) // Green line
+
+plot(st_isPlot ? st_slowPrimaryTrendMA : na, title = "Slow Primary Trend Line", linewidth = 3, color = #000000)
+plot(st_isPlot ? st_trendMA1 : na, title = "Trend Line - 1", linewidth = 3, color = #0000FF)//, style = plot.style_circles)
+plot(st_isPlot ? st_trendMA2 : na, title = "Trend Line - 2", linewidth = 3, color = #20B2AA)
+plot(st_isPlot ? st_trendMA2 : na, title = "Trend Line - 3", linewidth = 3, color = #FF4500)
+// plot(st_isPlot ? st_trendMA4 : na, title = "Trend Line - 4", linewidth = 3, color = color.fuchsia)
+
+plot(st_isPlot ? st_noTrendZoneMiddleMA : na, title = "No Trend Zone - Midline", linewidth = 2, color = #3CB371)
+plot(st_isPlot ? st_noTrendZoneUpperMA : na, title = "No Trend Zone - Upperline", linewidth = 2, color = #3CB371)
+// plot(st_isPlot ? st_noTrendZoneLowerMA : na, title = "No Trend Zone - Lowerline", linewidth = 2, color = #3CB371)
+
+
+
+//Full Algo
+
+
+// Conditions
+// Long
+// 1. Slow Speed Line > Fast Primary Trend Line and they are parallel up with an angle (slope up)
+// 2. Is not lines between them
+// 2. target candles for long with the a red triangle
+// 3. the target candle above Slow Speed Line
+st_isTrendUp = st_slowSpeedMA > st_fastPrimaryTrendMA and st_slowSpeedMA[1] < st_slowSpeedMA and st_fastPrimaryTrendMA[1] < st_fastPrimaryTrendMA
+st_isNotSlowerTrendUpBreak = (st_slowPrimaryTrendMA > st_slowSpeedMA or st_slowPrimaryTrendMA < st_fastPrimaryTrendMA) and
+                           (st_trendMA1 > st_slowSpeedMA or st_trendMA1 < st_fastPrimaryTrendMA) and
+                           (st_trendMA2 > st_slowSpeedMA or st_trendMA2 < st_fastPrimaryTrendMA) and
+                           (st_trendMA3 > st_slowSpeedMA or st_trendMA3 < st_fastPrimaryTrendMA) and
+                           (st_noTrendZoneMiddleMA > st_slowSpeedMA or st_noTrendZoneMiddleMA < st_fastPrimaryTrendMA) and
+                           (st_noTrendZoneUpperMA > st_slowSpeedMA or st_noTrendZoneUpperMA < st_fastPrimaryTrendMA)
+// short
+// 1. Fast Primary Trend Line > Slow Speed Line and they are parallel down with an angle  (slope down)
+// 2. Is not lines between them
+// 2. target candles for short  with the green triangle
+// 3. the target candle bellow Slow Speed Line
+st_isTrendDown = st_slowSpeedMA < st_fastPrimaryTrendMA and st_slowSpeedMA[1] > st_slowSpeedMA and st_fastPrimaryTrendMA[1] > st_fastPrimaryTrendMA
+st_isNotSlowerTrendDownBreak = (st_slowPrimaryTrendMA < st_slowSpeedMA or st_slowPrimaryTrendMA > st_fastPrimaryTrendMA) and
+                           (st_trendMA1 < st_slowSpeedMA or st_trendMA1 > st_fastPrimaryTrendMA) and
+                           (st_trendMA2 < st_slowSpeedMA or st_trendMA2 > st_fastPrimaryTrendMA) and
+                           (st_trendMA3 < st_slowSpeedMA or st_trendMA3 > st_fastPrimaryTrendMA) and
+                           (st_noTrendZoneMiddleMA < st_slowSpeedMA or st_noTrendZoneMiddleMA > st_fastPrimaryTrendMA) and
+                           (st_noTrendZoneUpperMA < st_slowSpeedMA or st_noTrendZoneUpperMA > st_fastPrimaryTrendMA)
+
+st_isLongConditions = st_isTrendUp and st_isNotSlowerTrendUpBreak and math.min(open, close) > st_slowSpeedMA and st_longBar
+
+var float st_longLimit = na
+var float st_longStopLossVal = na
+var float st_longTakeProfitVal = na
+var bool st_isLongOrder = false
+if st_isLongConditions and strategy.position_size == 0
+    st_longLimit := high * (1 + st_gap)
+    st_longStopLossVal := st_slowSpeedMA
+    st_longTakeProfitVal := st_longLimit + math.abs(st_longLimit - st_slowSpeedMA) // 1:1
+    st_isLongOrder := true
+
+st_isLongConditionsBroken = st_slowSpeedMA < st_fastPrimaryTrendMA or not st_isNotSlowerTrendUpBreak or close < st_fastPrimaryTrendMA
+
+enter_long = st_isLongConditions and strategy.position_size == 0
+st_isCancelLongLimit = strategy.position_size == 0  and (st_isLongConditionsBroken or enter_long) //and st_isLongOrder
+if st_isCancelLongLimit
+    st_isLongOrder := false
+if st_isPlot and enter_long
+    label.new(bar_index, na, text="Long signal", color=color.blue, style=label.style_arrowup, textcolor=color.blue, size=size.large, textalign=text.align_left, yloc=yloc.belowbar)
+// if st_isPlot and st_isCancelLongLimit and not enter_long
+    // label.new(bar_index, na, text="Break Long", color=color.black, style=label.style_xcross, textcolor=color.black, size=size.large, textalign=text.align_left, yloc=yloc.belowbar)
+
+
+
+plot(st_isPlot ? st_longLimit : na, color = strategy.position_size > 0 ? color.blue : na)
+plot(st_isPlot ? st_longStopLossVal : na, color=strategy.position_size > 0 ? color.red : na)
+plot(st_isPlot ? st_longTakeProfitVal : na, color=strategy.position_size > 0 ? color.green : na)
+
+
+
+st_isShortConditions = st_isTrendDown and st_isNotSlowerTrendDownBreak and st_shortBar and math.max(open, close) < st_slowSpeedMA
+var float st_shortLimit = na
+var float st_shortStopLossVal = na
+var float st_shortTakeProfitVal = na
+var bool st_isShortOrder = false
+if st_isShortConditions and strategy.position_size == 0
+    st_shortLimit := low * (1 - st_gap)
+    st_shortStopLossVal := st_slowSpeedMA
+    st_shortTakeProfitVal := st_shortLimit - math.abs(st_slowSpeedMA - st_shortLimit) // 1:1
+    st_isShortOrder := true
+
+st_isShortConditionsBroken = not (st_slowSpeedMA < st_fastPrimaryTrendMA) or not st_isNotSlowerTrendDownBreak or close > st_fastPrimaryTrendMA
+
+enter_short = st_isShortConditions and strategy.position_size == 0
+st_isCancelShortLimit = strategy.position_size == 0 and(st_isShortConditionsBroken or enter_short) //  st_isShortOrder and
+if st_isCancelShortLimit
+    st_isShortOrder := false
+if st_isPlot and enter_short
+    label.new(bar_index, na, text="Short signal", color=color.blue, style=label.style_arrowdown, textcolor=color.blue, size=size.large, textalign=text.align_left, yloc=yloc.abovebar)
+// if st_isPlot and st_isCancelShortLimit and not enter_short
+    // label.new(bar_index, na, text="Break Short", color=color.black, style=label.style_xcross, textcolor=color.black, size=size.large, textalign=text.align_left, yloc=yloc.abovebar)
+// st_isShortStopLoss = strategy.position_size < 0 and high >= st_shortStopLossVal
+// st_isShortTakeProfit = strategy.position_size < 0 and low <= st_shortTakeProfitVal
+
+plot(st_isPlot ? st_shortLimit : na, color = strategy.position_size < 0 ? color.blue : na)
+plot(st_isPlot ? st_shortStopLossVal : na, color=strategy.position_size < 0 ? color.red : na)
+plot(st_isPlot ? st_shortTakeProfitVal : na, color=strategy.position_size < 0 ? color.green : na)
+
+strategy.cancel('Long', when=st_isCancelLongLimit)
+strategy.cancel('Short', when=st_isCancelShortLimit)
+
+force_exit_signal_short = false
+force_exit_signal_long = false
+// Dashboard lights
+_take_long_one = st_isTrendUp
+_take_long_two = st_isTrendUp and st_isNotSlowerTrendUpBreak
+_take_long_three = enter_long
+
+_take_short_one = st_isTrendDown
+_take_short_two = st_isTrendDown and st_isNotSlowerTrendDownBreak
+_take_short_three = enter_short
+
+
+// TEST
+
+
+strategy.entry(id='Long', stop=st_longLimit, direction=strategy.long, when=enter_long, comment='Long')
+strategy.exit(id='Long exit', from_entry='Long', stop=st_longStopLossVal, profit=st_longTakeProfitVal, comment='Long exit')
+
+strategy.entry(id='Short', stop=st_shortLimit, direction=strategy.short, when=enter_short, comment='Short')
+strategy.exit(id='Short exit', from_entry='Short', stop=st_shortStopLossVal, profit=st_shortTakeProfitVal, comment='Short exit')
+

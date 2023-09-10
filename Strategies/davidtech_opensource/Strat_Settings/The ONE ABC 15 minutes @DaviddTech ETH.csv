@@ -1,0 +1,135 @@
+Name,Value
+"__indicatorName","The ONE @DaviddTech"
+"Long Trades",true
+"Short Trades",true
+"Baseline","ABC"
+"Reverse?",false
+"ABC Entry Settings","Wicks"
+"Limit order for Entry?",true
+"Limit order on Close","close"
+"Use Limit exit",true
+"Allow Reversal Trades",false
+"Close trade on reverse strategy",false
+"Wait for confirmation of new entry on reversal",false
+"Enable Repainting?",false
+"Wait for confirmed?",true
+"Type of Take Profit","Fixed Percent"
+"Type of Stoploss","Fixed Percent"
+"Stop Loss Long %",4
+"Take Profit Long %",4.5
+"Stop Loss Short %",2.8
+"Take Profit Short %",3.1
+"Take Protit Fibonacci LEVEL",1.228
+"Highest High lookback",50
+"Lowest Low Lookback",60
+"Profit factor Long (Risk to Reward)",2
+"Profit factor Short (Risk to Reward)",2
+"Use ATR Trailing Stop",false
+"Risk Adjustment",1
+"Swing Lookback",5
+"ATR length",14
+"ATR Trailing Stop Multiplier",1
+"ATR Trailing Stop Source","High/Low"
+"R:R To Trigger Exit",0
+"Set Max Daily DrawDown",false
+"Max Drawdown Daily (%)",20
+"Stop Loss Buffer - Long",0
+"Stop Loss Buffer - Short",0
+"Activate Min Risk:Reward?",false
+"Min Risk:Reward",1
+"Take Multi Profit X3",false
+"% to take at First TP",33
+"% to take at Second TP",33
+"% to take at Third TP",100
+"MA Type #1","EMA"
+"MA Type #2","EMA"
+"MA Type #3","EMA"
+"MA Type #4","EMA"
+"MA Type #5","EMA"
+"MA Length #1",true
+"MA 1",9
+"MA Length #2",true
+"MA 2",21
+"MA Length #3",true
+"MA 3",55
+"MA Length #4",true
+"MA 4",100
+"MA Length #5",true
+"MA 5",300
+"HMA BAR",false
+"HMA Len",100
+"Probability Formula",true
+"Probability Formula Length",100
+"Required Strong LONG Score",10
+"Required Strong SHORT Score",10
+"Divergence Look Left",6
+"Divergence Look Right",2
+"Use Divergences In Algo?",true
+"Divergence Importance Threshold",3
+"RSI Divergence Importance","Very Strong"
+"Lookback1",10
+"MACD Divergence Importance","Strong"
+"Lookback2",10
+"WaveTrend Divergence Importance","Very Strong"
+"Lookback3",10
+"Stochastic Divergence Importance","Very Strong"
+"Lookback4",10
+"RVI Divergence Importance","Off"
+"Lookback5",10
+"OBV Divergence Importance","Off"
+"Lookback6",10
+"KST Divergence Importance","Strong"
+"Lookback7",10
+"AO Divergence Importance","Off"
+"Lookback8",10
+"EMA Trend Direction Importance","Very Strong"
+"EMA Pressure Importance","Off"
+"Aroon","Off"
+"Waddah Attar","Off"
+"Bull vs. Bears","Off"
+"SuperTrend Direction Importance","Weak"
+"SuperTrend Reversal Importance","Off"
+"Parabolic SAR Direction Importance","Off"
+"Parabolic SAR Reversal Importance","Off"
+"HMA Trend Direction Importance","Off"
+"HMA Pivot Importance","Off"
+"RSI Level Importance","Off"
+"RSI Cross 50-Line Importance","Off"
+"MACD Histogram Pivot Importance","Off"
+"MACD Cross Signal Importance","Off"
+"KST Cross Signal Importance","Off"
+"WaveTrend Cross Signal Importance","Off"
+"Stoch Cross Signal Importance","Off"
+"BollingerBands Contact Importance","Strong"
+"ATR Reversal Importance","Off"
+"RVI Position Importance","Off"
+"Support/Resistance Cross Importance","Off"
+"CMF Cross 50-Line Importance","Off"
+"CMF Level Importance","Off"
+"VWAP Cross HMA Importance","Strong"
+"VWAP Trend Importance","Weak"
+"Engulfing Candle Importance","Off"
+"Left Bars",9
+"Right Bars",2
+"Depth",12
+"Deviation",5
+"Enable Max Trades?",false
+"Max Trades Per Direction?",5
+"Use Time Session Filter",false
+"Timezone","GMT+2"
+"Time Session To Ignore Trades","00:00"
+"Use Strategy Alerts? - Please read the tooltip",true
+"Alert Frequency","Once per bar"
+"API Entry - Long","{   \"user_id\" : 77,   \"competition_id\": 8,   \"action\" : \"buy\",   \"asset_id\" : 1 }"
+"API Exit - Long","{   \"user_id\" : 77,   \"competition_id\": 8,   \"action\" : \"close\",   \"type\" : \"all\",   \"direction\" : 0 }"
+"API Entry - Short","{   \"user_id\" : 77,   \"competition_id\": 8,   \"action\" : \"sell\",   \"asset_id\" : 1 }"
+"API Exit - Short","{   \"user_id\" : 77,   \"competition_id\": 8,   \"action\" : \"close\",   \"type\" : \"all\",   \"direction\" : 1 }"
+"API First TP - Long","3commas,alerteron etc"
+"API First TP - Short","3commas,alerteron etc"
+"API Second TP - Long","3commas,alerteron etc"
+"API Second TP - Short","3commas,alerteron etc"
+"Plot Entry/SL/TP",true
+"Plot trail trigger price",true
+"Dashboard On / Off",true
+"Dashboard Distance",13
+"Notes"," "

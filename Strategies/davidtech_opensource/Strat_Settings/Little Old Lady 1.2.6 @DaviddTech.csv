@@ -1,0 +1,110 @@
+Name,Value
+"__indicatorName","Little Old Lady 1.2.6 @DaviddTech"
+"0",true
+"1",true
+"Long Trades",true
+"Short Trades",true
+"Type of Take Profit","Fixed Percent"
+"Type of Stoploss","Fixed Percent"
+"Stop Loss Long %",3.1
+"Take Profit Long %",5
+"Stop Loss Short %",4.6
+"Take Profit Short %",5
+"Highest High lookback",50
+"Lowest Low Lookback",60
+"Profit factor Long (Risk to Reward)",2
+"Profit factor Short (Risk to Reward)",2
+"Use ATR Trailing Stop",false
+"Risk Adjustment",1
+"Swing Lookback",5
+"ATR length",14
+"ATR Trailing Stop Multiplier",1
+"ATR Trailing Stop Source","High/Low"
+"R:R To Trigger Exit",0
+"Set Max Total DrawDown",false
+"Max Drawdown (%)",20
+"Stop Loss Buffer - Long",0
+"Stop Loss Buffer - Short",0
+"Take Multi Profit X3",false
+"% to take at First TP",33
+"% to take at Second TP",33
+"% to take at Third TP",100
+"Enable Repainting?",false
+"Use Limit exit",true
+"Allow Reversal Trades",false
+"Close trade on reverse strategy",false
+"Wait for confirmation of new entry on reversal",false
+"Use Moving Averages?",false
+"Inverse Moving Averages?",false
+"Revserse all?",false
+"MA Type #1","EMA"
+"MA Type #2","EMA"
+"MA Type #3","EMA"
+"MA Type #4","EMA"
+"MA Type #5","EMA"
+"MA Length #1",true
+"MA Length #2",true
+"MA Length #3",true
+"MA Length #4",true
+"MA Length #5",true
+"HMA BAR",false
+"Deviation",7
+"Depth",7
+"Extend Lines Left",false
+"Extend Lines Right",true
+"Retracement",0.618
+"Reverse",true
+"Prices",true
+"Levels",true
+"Levels Format","Values"
+"0.236",true
+"0.382",true
+"0.5",true
+"0.618",true
+"0.786",true
+"1.272",true
+"1.414",true
+"1.618",true
+"2.618",false
+"3.618",false
+"4.236",false
+"Force Exit On Exit Signal ?",false
+"Enable Max Trades?",false
+"Max Trades Per Direction?",5
+"Enable ADX ?",false
+"ADX Smoothing",14
+"DI Length",14
+"Above line",30
+"Enable RSI ?",false
+"RSI Source","close"
+"RSI Length",14
+"Overbrought",50
+"Oversold",50
+"Enable MFI ?",false
+"MFI Source","hlc3"
+"MFI Length",14
+"Enable Flat Market ?",false
+"Line",30
+"Use vWap / ema",false
+"VWap Source","close"
+"VWap2 Source","close"
+"Vwap Length",3
+"Use Time Session Filter",false
+"Timezone","GMT+2"
+"Time Session To Ignore Trades","00:00"
+"Wait for confirmed?",true
+"Use Strategy Alerts? - Please read the tooltip",true
+"Alert Frequency","Once per bar"
+"API Entry - Long","{   \"user_id\" : 108,   \"competition_id\": 8,   \"action\" : \"buy\",   \"asset_id\" : 1 }"
+"API Exit - Long","{   \"user_id\" : 108,   \"competition_id\": 8,   \"action\" : \"close\",   \"type\" : \"all\",   \"direction\" : 0 }"
+"API Entry - Short","{   \"user_id\" : 108,   \"competition_id\": 8,   \"action\" : \"sell\",   \"asset_id\" : 1 }"
+"API Exit - Short","{   \"user_id\" : 108,   \"competition_id\": 8,   \"action\" : \"close\",   \"type\" : \"all\",   \"direction\" : 1 }"
+"API First TP - Long","3commas,alerteron etc"
+"API First TP - Short","3commas,alerteron etc"
+"API Second TP - Long","3commas,alerteron etc"
+"API Second TP - Short","3commas,alerteron etc"
+"Plot Entry/SL/TP",true
+"Plot trail trigger price",true
+"Dashboard On / Off",true
+"Dashboard Distance",13
+"Notes"," "

@@ -1,0 +1,79 @@
+//@version=5
+// Copyright all rights reserved to DaviddTech
+strategy('Emperor the trader @DaviddTech', overlay=true, precision=3, calc_on_every_tick=false, calc_on_order_fills=false, default_qty_type=strategy.percent_of_equity, commission_value=0.05, commission_type=strategy.commission.percent, slippage=1, currency=currency.USD, default_qty_value=5, max_bars_back=3000, initial_capital=100000)
+// 4h(!)
+// SOURCE: https://mobile.twitter.com/emperorbtc/status/1300832253514149889?lang=ca
+
+
+// ****************************************************************************//
+// ---------------------------------> Edit here ------------------------------ //
+// ****************************************************************************//
+
+isStrategyPlot = input.bool(true, "Plot strategy indicators(except oscillators)", group='Strategy: base')
+
+
+// 1. EMA
+emaSlowLen = input.int(title="4h EMA Long Length", defval=200, group='Strategy: EMA') 
+emaMiddleLen = input.int(title="1d EMA Medium Length", defval=21, group='Strategy: EMA') 
+emaFastLen = input.int(title="1d EMA Short Length", defval=13, group='Strategy: EMA') 
+
+
+priceTrendingdays = input.int(title="Support testing days", defval=3, group='Strategy: EMA') 
+volumeBreakoutPercent = input.int(title="Volume breakout percent", defval=30, group='Strategy: EMA')
+isPlotEMASupport = input.bool(true, "Is plot EMA", group='Strategy: EMA')
+
+
+
+emaDFast = request.security(syminfo.tickerid, 'D', ta.ema(close, emaFastLen))
+emaDMiddle = request.security(syminfo.tickerid, 'D', ta.ema(close, emaMiddleLen))
+emaSlow =  request.security(syminfo.tickerid, '240', ta.ema(close, emaSlowLen))
+plot(isStrategyPlot and isPlotEMASupport ? emaDFast : na, title="Fast EMA", linewidth=2, color=color.orange)
+plot(isStrategyPlot and isPlotEMASupport ? emaDMiddle : na, title="Middle EMA", linewidth=2, color=color.blue)
+plot(isStrategyPlot and isPlotEMASupport ? emaSlow : na, title="Slow EMA", linewidth=2, color=color.gray)
+
+trendDaysUp = request.security(syminfo.tickerid, '240', ta.barssince(emaDFast < emaDMiddle or close < emaDFast))
+trendDaysDown = request.security(syminfo.tickerid, '240', ta.barssince(emaDFast > emaDMiddle or close > emaDFast))
+// plot(trendDaysUp, title="trend days up") // For debug
+// plot(trendDaysDown, title="trend days down") // For debug
+testSupportDays = request.security(syminfo.tickerid, '240', ta.barssince(not(low < emaSlow and high > emaSlow)))
+// plot(testSupportDays, title="test support days") // For debug
+isVolumeBreakOut = request.security(syminfo.tickerid, '240', volume > volume[1] * (1 + volumeBreakoutPercent/100))
+
+//Full Algo
+
+enter_long = trendDaysUp and testSupportDays[1] > priceTrendingdays and isVolumeBreakOut and close > emaSlow
+barcolor(enter_long ? color.lime : na)
+enter_short = trendDaysDown and testSupportDays[1] > priceTrendingdays and isVolumeBreakOut and close < emaSlow
+barcolor(enter_short ? color.fuchsia : na)
+
+
+force_exit_signal_short = false
+force_exit_signal_long = false
+
+// Dashboard lights
+_take_long_one = trendDaysUp
+_take_long_two = trendDaysUp and testSupportDays[1] > priceTrendingdays
+_take_long_three = enter_long
+
+_take_short_one = trendDaysDown
+_take_short_two = trendDaysDown and testSupportDays[1] > priceTrendingdays
+_take_short_three = enter_short
+
+
+// TEST
+
+isLongStopLoss = strategy.position_size > 0 and open < emaSlow and close < emaSlow
+
+isLongTakeProfit = strategy.position_size > 0 and ta.crossunder(emaDFast,emaDMiddle)
+
+strategy.close('Long', isLongStopLoss or isLongTakeProfit, qty_percent=100)
+
+strategy.entry(id='Long', direction=strategy.long, when=enter_long, comment='Long')
+
+
+
+isShortStopLoss = strategy.position_size < 0 and open > emaSlow and open > emaSlow
+isShortTakeProfit = strategy.position_size < 0 and  ta.crossover(emaDFast, emaDMiddle)
+
+strategy.close('Short', isShortStopLoss or isShortTakeProfit, qty_percent=100)
+strategy.entry(id='Short', direction=strategy.short, when=enter_short, comment='Short')

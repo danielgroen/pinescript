@@ -1,0 +1,128 @@
+Name,Value
+"__indicatorName","Squeeze Momentum v2.3 by @DaviddTech"
+"Long Trades",true
+"Short Trades",true
+"Type of Take Profit","Fixed Percent"
+"Type of Stoploss","Fixed Percent"
+"Stop Loss Long %",1.5
+"Take Profit Long %",2.6
+"Stop Loss Short %",1.5
+"Take Profit Short %",2.6
+"Stop Loss Long PIPS",100
+"Take Profit Long PIPS",200
+"Stop Loss Short PIPS",100
+"Take Profit Short PIPS",200
+"Highest High lookback",50
+"Lowest Low Lookback",60
+"Profit factor Long (Risk to Reward)",2
+"Profit factor Short (Risk to Reward)",2
+"Risk Adjustment",1
+"Swing Lookback",5
+"ATR length",14
+"Use ATR Trailing Stop",false
+"ATR Trailing Stop Multiplier",1
+"ATR Trailing Stop Source","High/Low"
+"R:R To Trigger Exit",0
+"Set Max Total DrawDown",false
+"Max Drawdown (%)",20
+"Stop Loss Buffer - Long",0
+"Stop Loss Buffer - Short",0
+"% of Portfolio",100
+"Leverage",1
+"Show Liquadation line (BETA)",false
+"Maintenance Margin Rate",0.5
+"Position Size (BETA)","Manual"
+"Activate Threshold Risk:Reward?",false
+"Threshold Risk:Reward",1
+"Take Multi Profit X3",false
+"% to take at First TP",33
+"Level 1",33
+"% to take at Second TP",33
+"Level 2",66
+"% to take at Third TP",100
+"Level 3",100
+"Enable Repainting?",false
+"Use Limit exit",true
+"Allow Reversal Trades",false
+"Close trade on reverse strategy",false
+"Wait for confirmation of new entry on reversal",false
+"Wait for confirmed?",true
+"Use Moving Averages?","Close over/under MA5"
+"Inverse Moving Averages?",false
+"Revserse all?",false
+"MA #1",true
+"MA Type #1","EMA"
+"MA Length #1",9
+"MA #2",true
+"MA Type #2","EMA"
+"MA Length #2",21
+"MA #3",true
+"MA Type #3","EMA"
+"MA Length #3",55
+"MA #4",true
+"MA Type #4","EMA"
+"MA Length #4",100
+"MA #5",true
+"MA Type #5","EMA"
+"MA Length #5",200
+"HMA BAR",false
+"HMA Length",100
+"BB Length",12
+"BB MultFactor",2
+"KC Length",16
+"KC MultFactor",1.5
+"Filter for Momenutum value",false
+"Min for momentum",20
+"Force Exit On Exit Signal ?",false
+"Enable Max Trades?",false
+"Max Trades Per Direction?",5
+"Enable ADX ?",false
+"ADX Smoothing",14
+"DI Length",14
+"ADX Above line",30
+"Volume confirm?",true
+"TDFI Lookback",20
+"Filter High",0.05
+"Filter Low",-0.05
+"Enable RSI ?",false
+"RSI Source","close"
+"RSI Length",14
+"RSI Overbrought",51
+"RSI Oversold",49
+"Enable MFI ?",false
+"MFI Source","hlc3"
+"MFI Length",14
+"MFI Overbrought",51
+"MFI Oversold",49
+"Enable Flat Market ?",true
+"Flat Market Above Line",30
+"Use vWap / ema",false
+"VWap Source","close"
+"VWap2 Source","close"
+"Vwap Length",3
+"Use Time Session Filter",false
+"Timezone","GMT+2"
+"Time Session To Ignore Trades","00:00"
+"Use Date Session Filter",false
+"Mon",true
+"Tue",true
+"Wed",true
+"Thur",true
+"Fri",true
+"Sat",true
+"Sun",true
+"Use Strategy Alerts? - Please read the tooltip",false
+"Alert Frequency","Once per bar"
+"API Entry - Long","3commas,alerteron etc"
+"API Exit - Long","3commas,alerteron etc"
+"API Entry - Short","3commas,alerteron etc"
+"API Exit - Short","3commas,alerteron etc"
+"API First TP - Long","3commas,alerteron etc"
+"API First TP - Short","3commas,alerteron etc"
+"API Second TP - Long","3commas,alerteron etc"
+"API Second TP - Short","3commas,alerteron etc"
+"Plot Entry/SL/TP",true
+"Plot trail trigger price",true
+"Dashboard On / Off",true
+"Dashboard Distance",13
+"Notes"," "

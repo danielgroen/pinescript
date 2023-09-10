@@ -1,0 +1,195 @@
+//@version=5
+// Copyright all rights reserved to DaviddTech
+strategy('TDI + TEMA', overlay=true, max_labels_count=500)
+// SOURCE: https://www.youtube.com/watch?v=poRF7VPhDkw&list=WL&index=85&t=91s
+// Timeframe 1h, BTCUSDT
+
+
+
+// ****************************************************************************//
+// ---------------------------------> Edit here ------------------------------ //
+// ****************************************************************************//
+st_isPlot = input.bool(true, "Plot strategy indicators(except oscillators)", group='Strategy: base')
+// st_gap = input.float(title="Gap Above High or Below Long for limit order %", defval=0.2, group='Strategy: base')
+// st_gap := st_gap/100
+
+
+
+// EMA for Direction
+st_directionEmaLen = input.int(200, title="Direction EMA Length")
+st_directionEma = ta.ema(close, st_directionEmaLen)
+plot(st_isPlot ? st_directionEma : na, linewidth=2, color=color.gray)
+
+// TEMA reduce MA Lag: trigger
+st_temaEmaLen = input.int(200, title="TEMA Length")
+
+st_temaEMA1 = ta.ema(close, st_temaEmaLen)
+st_temaEMA2 = ta.ema(st_temaEMA1, st_temaEmaLen)
+st_temaEMA3 = ta.ema(st_temaEMA2, st_temaEmaLen)
+st_temaNRes = 3 * st_temaEMA1 - 3 * st_temaEMA2 + st_temaEMA3
+plot(st_isPlot ? st_temaNRes: na, color=color.orange, title="TEMA")
+
+
+// TDI - Traders Dynamic Index: trigger confirmation
+// @author LazyBear
+
+st_rsiPeriod = input.int(13, minval = 1, title = "TDI: RSI Period", group='Strategy: base')
+st_bandLength = input.int(34, minval = 1, title = "TDI: Band Length", group='Strategy: base')
+// st_lengthRSIFl = input.int(2, minval = 0, title = "TDI: Fast MA on RSI", group='Strategy: base')
+// st_lengthTradeSl = input.int(7, minval = 1, title = "TDI: Slow MA on RSI", group='Strategy: base')
+
+st_rsi = ta.rsi(close, st_rsiPeriod) 
+st_maRSI = ta.sma(st_rsi, st_bandLength)
+st_offset = (1.6185 * ta.stdev(st_rsi, st_bandLength))
+st_upperBand = st_maRSI + st_offset
+st_lowerBand = st_maRSI - st_offset
+st_middleBand = (st_upperBand + st_lowerBand) / 2
+// st_fastMA = ta.sma(st_rsi, st_lengthRSIFl)                                 
+// st_slowMA = ta.sma(st_rsi, st_lengthTradeSl)                               
+// hline(30)                                                               
+// hline(50)                                                               
+// hline(70)                                                               
+// plot(st_isPlot ? st_rsi : na, "RSI", color=color.yellow, linewidth=3)  
+// st_upperPlot = plot(st_isPlot ? st_upperBand : na, "Upper Band", color = color.blue)
+// st_lowerPlot = plot(st_isPlot ? st_lowerBand : na, "Lower Band", color = color.blue)
+// st_midllePlot = plot(st_isPlot ? st_middleBand : na, "Middle of Bands", color = color.orange, linewidth = 2)
+// fill(st_upperPlot, st_midllePlot, color=color.new(color.red, 90))                                         
+// fill(st_midllePlot, st_lowerPlot, color=color.new(color.green, 90))
+// plot(st_isPlot ? st_fastMA : na, "Fast MA", color=color.red, linewidth=2)  
+// plot(st_isPlot ? st_slowMA : na, "Slow MA", color=color.green, linewidth=2)
+
+
+//Full Algo
+st_isShowTPAndSL = input.bool(true, title="Show TP and SL?")
+st_isTDISignalCancelPrev = input.bool(false, title="Is TDI Signal Cancel Previus")
+// Long
+// 1. Start to wait condition: RSI < st_lowerBand
+// 2. Next condition: close bellow TEMA
+// 3. Triger: candle close above TEMA and EMA direction
+var bool isLongStartCondition = false
+var bool isPriceBelowTEMA = false
+
+
+var bool isShortStartCondition = false
+var bool isPriceAboveTEMA = false
+
+isRSIBelowLowerBand = st_rsi < st_lowerBand
+if isRSIBelowLowerBand
+    isLongStartCondition := true
+    isPriceBelowTEMA := false
+    if st_isTDISignalCancelPrev
+        isShortStartCondition := false
+        isPriceAboveTEMA := false
+
+if strategy.position_size != 0
+    isLongStartCondition := false
+    
+
+if isLongStartCondition and close < st_temaNRes and isPriceBelowTEMA == false
+    isPriceBelowTEMA := true
+
+
+var float st_swingLow = low
+if low[2] > low[1] and low[1] < low
+    st_swingLow := low[1]
+    
+
+enter_long = isLongStartCondition and isPriceBelowTEMA and close > st_temaNRes and close > st_directionEma
+var float st_longStopLoss = na
+var float st_longDiff = na
+var float st_longTakeProfit = na
+var bool st_islongTakeProfitBreak = false
+if enter_long
+    st_longStopLoss := st_swingLow
+    st_longDiff := close - st_longStopLoss
+    st_longTakeProfit := close + st_longDiff
+    st_islongTakeProfitBreak := false
+    isLongStartCondition := false
+    isPriceBelowTEMA := false
+
+if not st_islongTakeProfitBreak and high > st_longTakeProfit and strategy.position_size > 0
+    st_islongTakeProfitBreak := true
+    st_longStopLoss := st_longStopLoss + st_longDiff
+    st_longTakeProfit := st_longTakeProfit + st_longDiff
+
+plot(st_isPlot and st_isShowTPAndSL? st_longStopLoss : na, color=strategy.position_size > 0 ? color.red : na)
+plot(st_isPlot and st_isShowTPAndSL ? st_longTakeProfit : na, color=strategy.position_size > 0 ? color.green : na)
+
+st_isLongStopLoss = low < st_longStopLoss
+st_isLongTakeProfit = high > st_longTakeProfit
+    
+
+
+// Short
+// 1. Start to wait condition: RSI > st_upperBand
+// 2. Next condition: close above TEMA
+// 3. Triger: candle close below TEMA and EMA direction
+
+
+isRSIAboveUpperBand = st_rsi > st_upperBand
+if isRSIAboveUpperBand  and strategy.position_size == 0
+    isShortStartCondition := true
+    isPriceAboveTEMA := false
+    if st_isTDISignalCancelPrev
+        isLongStartCondition := false
+        isPriceBelowTEMA := false
+        
+if strategy.position_size != 0
+    isShortStartCondition := false
+
+if isShortStartCondition and close > st_temaNRes and isPriceAboveTEMA == false
+    isPriceAboveTEMA := true
+
+
+var float st_swingHigh = high
+if high[2] < high[1] and high[1] > high
+    st_swingHigh := high[1]
+
+
+enter_short = isShortStartCondition and isPriceAboveTEMA and close < st_temaNRes and close < st_directionEma
+var float st_shortStopLoss = na
+var float st_shortDiff = na
+var float st_shortTakeProfit = na
+var bool st_isShortTakeProfitBreak = false
+if enter_short
+    st_shortStopLoss := st_swingHigh
+    st_shortDiff := st_shortStopLoss - close
+    st_shortTakeProfit := close - st_shortDiff
+    st_isShortTakeProfitBreak := false
+    isShortStartCondition := false
+    isPriceAboveTEMA := false
+
+if not st_isShortTakeProfitBreak and low < st_shortTakeProfit and strategy.position_size < 0
+    st_isShortTakeProfitBreak := true
+    st_shortStopLoss := st_shortStopLoss - st_shortDiff
+    st_shortTakeProfit := st_shortTakeProfit - st_shortDiff
+
+st_isShortStopLoss = high > st_shortStopLoss
+st_isShortTakeProfit = low < st_shortTakeProfit
+
+plot(st_isPlot and st_isShowTPAndSL ? st_shortStopLoss : na, color=strategy.position_size < 0 ? color.red : na)
+plot(st_isPlot and st_isShowTPAndSL ? st_shortTakeProfit : na, color=strategy.position_size < 0 ? color.green : na)
+
+// plot(st_isPlot  ? st_shortStopLoss : na, color=color.red)
+// plot(st_isPlot ? st_shortTakeProfit : na, color=color.green)
+
+force_exit_signal_short = false
+force_exit_signal_long = false
+// Dashboard lights
+_take_long_one = isLongStartCondition
+_take_long_two = isPriceBelowTEMA
+_take_long_three = enter_long
+
+_take_short_one = isShortStartCondition
+_take_short_two = isPriceAboveTEMA
+_take_short_three = enter_short
+
+
+// TEST
+
+strategy.entry(id='Long', direction=strategy.long, when=enter_long, comment='Long')
+strategy.close('Long', when=st_isLongStopLoss or st_isLongTakeProfit, comment='Long exit')
+
+strategy.entry(id='Short', direction=strategy.short, when=enter_short, comment='Short')
+strategy.close('Short', when=st_isShortStopLoss or st_isShortTakeProfit, comment='Short exit')
+

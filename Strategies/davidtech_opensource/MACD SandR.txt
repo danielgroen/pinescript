@@ -1,0 +1,123 @@
+//@version=5
+
+indicator(title='MACD s/L', overlay=true, timeframe='')
+
+//Inputs : dcLength
+
+showDC = input(title='Show Donchian Channels', defval=true)
+int dcLength = input.int(title='DC Length', defval=20, minval=1)
+useColors = input(title='Use colors for MACD lines', defval=true)
+//required code for : Donchian Channels, MACD
+
+
+//DC adapted code :
+
+dcLower = ta.lowest(dcLength)
+dcUpper = ta.highest(dcLength)
+dcBasis = math.avg(dcLower, dcUpper)
+
+
+//MACD adapted code :
+
+fast_length = input(title='MACD Fast Length', defval=12)
+slow_length = input(title='MACD Slow Length', defval=26)
+src = input(title='Source', defval=close)
+signal_length = input.int(title='MACD Signal Smoothing', minval=1, maxval=50, defval=9)
+sma_source = input(title='Simple MA(Oscillator)', defval=false)
+sma_signal = input(title='Simple MA(Signal Line)', defval=false)
+// Plot colors
+col_grow_above = #26A69A
+col_grow_below = #FFCDD2
+col_fall_above = #B2DFDB
+col_fall_below = #EF5350
+col_macd = #0094ff
+col_signal = #ff6a00
+// Calculating
+fast_ma = sma_source ? ta.sma(src, fast_length) : ta.ema(src, fast_length)
+slow_ma = sma_source ? ta.sma(src, slow_length) : ta.ema(src, slow_length)
+macd = fast_ma - slow_ma
+signal = sma_signal ? ta.sma(macd, signal_length) : ta.ema(macd, signal_length)
+hist = macd - signal
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////// DC part :
+
+//Plot the DC lines
+
+upperLine = plot(dcUpper, 'DC Upper Line', color=showDC ? color.blue : na)
+lowerLine = plot(dcLower, 'DC Lower Line', color=showDC ? color.blue : na)
+basisLine = plot(dcBasis, 'DC Basis', color=showDC ? color.orange : na)
+
+//Fill the DC with color
+fill(lowerLine, upperLine, color=color.blue, title='DC Fill', transp=showDC ? 90 : 100)
+
+
+
+///////////////////////////// MACD part : 
+
+// Get crossovers under the 0-line and crossunders below the 0-line
+
+isCrossOver = ta.crossover(macd, signal) and signal < 0
+isCrossUnder = ta.crossunder(macd, signal) and signal > 0
+
+
+///////////////////////////// DC + MACD part :
+
+
+//Update the price "checkpoints" based on MACD crossovers and DC(MACD - based LL,LH,HL,HH)
+float lowPrice = 0.0
+float highPrice = 0.0
+float averagePrice = 0.0
+
+lowPrice := isCrossOver ? dcLower : lowPrice[1]
+highPrice := isCrossUnder ? dcUpper : highPrice[1]
+averagePrice := math.avg(lowPrice, highPrice)
+
+//Plot the MACD lines on the chart ?
+
+slowUpperLineColor = color.blue
+slowLowerLineColor = color.blue
+
+if useColors and highPrice[1] > highPrice
+    slowUpperLineColor := color.red
+    slowUpperLineColor
+else
+    if useColors and highPrice[1] < highPrice
+        slowUpperLineColor := color.green
+        slowUpperLineColor
+    else
+        if useColors
+            slowUpperLineColor := color.white
+            slowUpperLineColor
+        else
+            slowUpperLineColor := color.blue
+            slowUpperLineColor
+
+if useColors and lowPrice[1] > lowPrice
+    slowLowerLineColor := color.red
+    slowLowerLineColor
+else
+    if useColors and lowPrice[1] < lowPrice
+        slowLowerLineColor := color.green
+        slowLowerLineColor
+    else
+        if useColors
+            slowLowerLineColor := color.white
+            slowLowerLineColor
+        else
+            slowLowerLineColor := color.blue
+            slowLowerLineColor
+
+slowLowerLine = plot(lowPrice, 'Slow Lower Line', color=slowLowerLineColor, linewidth=2)
+slowUpperLine = plot(highPrice, 'Slow Upper Line', color=slowUpperLineColor, linewidth=2)
+slowBasisLine = plot(averagePrice, 'Slow Basis Line', color=color.new(color.orange, 0), linewidth=2)
+
+
+
+
+
+////////////////////////////////////// END OF SCRIPT ///////////////////////////////////////////
+

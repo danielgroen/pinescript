@@ -1,0 +1,257 @@
+
+_repaint = input(true, title="Enable Repainting?",  group = "Strategy Config", tooltip="This will allow candles to change previous data")
+
+f_security(_symbol, _res, _src, _repaint) => security(_symbol, _res, _src[_repaint ? 0 : barstate.isrealtime ? 1 : 0])[_repaint ? 0 : barstate.isrealtime ? 0 : 1]
+
+
+//***************************************************************//
+//************************ Start here **************************//
+//**************************************************************//
+//********************ADD YOUR CODE HERE************************//
+
+
+
+lenema50 = input(50, minval=1, title="Fast EMA",group="EMA")
+srcema50 = input(close, title="Fast EMA Source",group="EMA")
+out50 = ema(srcema50, lenema50)
+
+
+lenema = input(200, minval=1, title="Slow EMA",group="EMA")
+srcema = input(close, title="Fast EMA Source",group="EMA")
+out = ema(srcema, lenema)
+
+emacolor = out > close ? color.red : color.green
+plot(out, title="EMA", color=emacolor)
+
+
+EMA=out50
+lowaboveEMA=low > EMA
+lowbelowEMA=low < EMA
+highaboveEMA=high > EMA
+highbelowEMA=high < EMA
+BullBounce=lowaboveEMA[1] and lowbelowEMA and close > EMA //and close > open
+BearBounce=highbelowEMA[1] and highaboveEMA and close < EMA //and close < open
+
+ema_theema_color = EMA > close ? color.red : color.green
+plot(EMA, title="The EMA", color=ema_theema_color)
+
+BUY=(BullBounce or out50 > ohlc4) and ohlc4 > out
+
+SELL=(BearBounce or out50 < ohlc4) and ohlc4 < out
+
+//Inputs
+DPR=false
+reverse=false
+
+// Entries
+BUYBUY = reverse ? SELL : BUY
+SELLSELL = reverse ? BUY : SELL
+   
+
+
+
+
+
+
+
+// Colors
+colorRed = #ff0000
+colorPurple = #e600e6
+colorGreen = #3fff00
+colorOrange = #e2a400
+colorYellow = #ffe500
+colorWhite = #ffffff
+colorPink = #ff00f0
+colorBluelight = #31c0ff
+
+colorWT1 = #90caf9
+colorWT2 = #0d47a1
+
+colorWT2_ = #131722
+
+colormacdWT1a = #4caf58
+colormacdWT1b = #af4c4c
+colormacdWT1c = #7ee57e
+colormacdWT1d = #ff3535
+
+colormacdWT2a = #305630
+colormacdWT2b = #310101
+colormacdWT2c = #132213
+colormacdWT2d = #770000
+// WaveTrend
+wtShow = false
+wtBuyShow = true
+wtGoldShow = true
+wtSellShow = false
+wtDivShow = false
+vwapShow = false
+wtChannelLen = input(9, title = 'WT Channel Length', type = input.integer,group="Wavetrend")
+wtAverageLen = input(12, title = 'WT Average Length', type = input.integer,group="Wavetrend")
+wtMASource = input(hlc3, title = 'WT MA Source', type = input.source,group="Wavetrend")
+wtMALen = input(3, title = 'WT MA Length', type = input.integer,group="Wavetrend")
+
+// WaveTrend Overbought & Oversold lines
+obLevel = input(53, title = 'WT Overbought Level 1', type = input.integer,group="WaveTrend Overbought & Oversold lines")
+obLevel2 = input(60, title = 'WT Overbought Level 2', type = input.integer,group="WaveTrend Overbought & Oversold lines")
+obLevel3 = input(100, title = 'WT Overbought Level 3', type = input.integer,group="WaveTrend Overbought & Oversold lines")
+osLevel = input(-53, title = 'WT Oversold Level 1', type = input.integer,group="WaveTrend Overbought & Oversold lines")
+osLevel2 = input(-60, title = 'WT Oversold Level 2', type = input.integer,group="WaveTrend Overbought & Oversold lines")
+osLevel3 = input(-75, title = 'WT Oversold Level 3', type = input.integer,group="WaveTrend Overbought & Oversold lines")
+
+// Divergence WT
+wtShowDiv = true
+wtShowHiddenDiv = true
+showHiddenDiv_nl = true
+wtDivOBLevel = 45
+wtDivOSLevel = -65
+
+// Divergence extra range
+wtDivOBLevel_addshow = true
+wtDivOBLevel_add = 15
+wtDivOSLevel_add = -40
+
+// RSI+MFI
+rsiMFIShow = true
+rsiMFIperiod = 60
+rsiMFIMultiplier = 150
+rsiMFIPosY = 2.5
+
+// RSI
+rsiShow = true
+rsiSRC = input(close, title = 'RSI Source', type = input.source,group="MFI RSI Settings")
+rsiLen = input(14, title = 'RSI Length', type = input.integer,group="MFI RSI Settings")
+rsiOversold = input(30, title = 'RSI Oversold', minval = 50, maxval = 100, type = input.integer,group="MFI RSI Settings")
+rsiOverbought = input(60, title = 'RSI Overbought', minval = 0, maxval = 50, type = input.integer,group="MFI RSI Settings")
+
+// Divergence RSI
+rsiShowDiv = false
+rsiShowHiddenDiv = false
+rsiDivOBLevel = 60
+rsiDivOSLevel = 30
+
+
+// RSI Stochastic
+stochShow = true
+stochUseLog = input(true, title=' Use Log?', type = input.bool)
+stochAvg = false
+stochSRC = close
+stochLen = 14
+stochRsiLen = 14
+stochKSmooth = 3
+stochDSmooth = 3
+
+// Divergences 
+f_top_fractal(src) => src[4] < src[2] and src[3] < src[2] and src[2] > src[1] and src[2] > src[0]
+f_bot_fractal(src) => src[4] > src[2] and src[3] > src[2] and src[2] < src[1] and src[2] < src[0]
+f_fractalize(src) => f_top_fractal(src) ? 1 : f_bot_fractal(src) ? -1 : 0
+
+
+
+
+f_findDivs(src, topLimit, botLimit, useLimits) =>
+    fractalTop = f_fractalize(src) > 0 and (useLimits ? src[2] >= topLimit : true) ? src[2] : na
+    fractalBot = f_fractalize(src) < 0 and (useLimits ? src[2] <= botLimit : true) ? src[2] : na
+    highPrev = valuewhen(fractalTop, src[2], 0)[2]
+    highPrice = valuewhen(fractalTop, high[2], 0)[2]
+    lowPrev = valuewhen(fractalBot, src[2], 0)[2]
+    lowPrice = valuewhen(fractalBot, low[2], 0)[2]
+    bearSignal = fractalTop and high[2] > highPrice and src[2] < highPrev
+    bullSignal = fractalBot and low[2] < lowPrice and src[2] > lowPrev
+    bearDivHidden = fractalTop and high[2] < highPrice and src[2] > highPrev
+    bullDivHidden = fractalBot and low[2] > lowPrice and src[2] < lowPrev
+    [fractalTop, fractalBot, lowPrev, bearSignal, bullSignal, bearDivHidden, bullDivHidden]
+     
+// RSI+MFI
+f_rsimfi(_period, _multiplier, _tf) => f_security(syminfo.tickerid, _tf, sma(((close - open) / (high - low)) * _multiplier, _period) - rsiMFIPosY,_repaint)
+   
+
+// WaveTrend
+f_wavetrend(src, chlen, avg, malen, tf) =>
+    tfsrc = f_security(syminfo.tickerid, tf, src,_repaint)
+    esa = ema(tfsrc, chlen)
+    de = ema(abs(tfsrc - esa), chlen)
+    ci = (tfsrc - esa) / (0.015 * de)
+    wt1 = f_security(syminfo.tickerid, tf, ema(ci, avg),_repaint)
+    wt2 = f_security(syminfo.tickerid, tf, sma(wt1, malen),_repaint)
+    wtVwap = wt1 - wt2
+    wtOversold = wt2 <= osLevel
+    wtOverbought = wt2 >= obLevel
+    wtCross = cross(wt1, wt2)
+    wtCrossUp = wt2 - wt1 <= 0
+    wtCrossDown = wt2 - wt1 >= 0
+    wtCrosslast = cross(wt1[2], wt2[2])
+    wtCrossUplast = wt2[2] - wt1[2] <= 0
+    wtCrossDownlast = wt2[2] - wt1[2] >= 0
+    [wt1, wt2, wtOversold, wtOverbought, wtCross, wtCrossUp, wtCrossDown, wtCrosslast, wtCrossUplast, wtCrossDownlast, wtVwap]
+
+
+// Stochastic RSI
+f_stochrsi(_src, _stochlen, _rsilen, _smoothk, _smoothd, _log, _avg) =>
+    src = _log ? log(_src) : _src
+    rsi = rsi(src, _rsilen)
+    kk = sma(stoch(rsi, rsi, rsi, _stochlen), _smoothk)
+    d1 = sma(kk, _smoothd)
+    avg_1 = avg(kk, d1)
+    k = _avg ? avg_1 : kk
+    [k, d1]
+
+// RSI
+rsi = rsi(rsiSRC, rsiLen)
+rsiColor = rsi <= rsiOversold ? colorGreen : rsi >= rsiOverbought ? colorRed : colorPurple
+
+// RSI + MFI Area
+rsiMFI = f_rsimfi(rsiMFIperiod, rsiMFIMultiplier, timeframe.period)
+rsiMFIColor = color.new(rsiMFI > 0 ? #3ee145 : #ff3d2e,90)
+
+// Calculates WaveTrend
+[wt1, wt2, wtOversold, wtOverbought, wtCross, wtCrossUp, wtCrossDown, wtCross_last, wtCrossUp_last, wtCrossDown_last, wtVwap] = f_wavetrend(wtMASource, wtChannelLen, wtAverageLen, wtMALen, timeframe.period)
+ 
+// Stochastic RSI
+[stochK, stochD] = f_stochrsi(stochSRC, stochLen, stochRsiLen, stochKSmooth, stochDSmooth, stochUseLog, stochAvg)
+
+
+[wtFractalTop, wtFractalBot, wtLow_prev, wtBearDiv, wtBullDiv, wtBearDivHidden, wtBullDivHidden] = f_findDivs(wt2, wtDivOBLevel, wtDivOSLevel, true)
+
+// RSI Divergences
+[rsiFractalTop, rsiFractalBot, rsiLow_prev, rsiBearDiv, rsiBullDiv, rsiBearDivHidden, rsiBullDivHidden] = f_findDivs(rsi, rsiDivOBLevel, rsiDivOSLevel, true)
+[rsiFractalTop_nl, rsiFractalBot_nl, rsiLow_prev_nl, rsiBearDiv_nl, rsiBullDiv_nl, rsiBearDivHidden_nl, rsiBullDivHidden_nl] = f_findDivs(rsi, 0, 0, false)
+
+
+
+
+textStepOne_long = "EMA cross for LONG" //Text for redLight LONG
+textStepTwo_long = "Price below Fast EMA for LONG" //Text for purplelight LONG
+textStepThree_long = "Green Dot WAVE for LONG" //Text for amberlight LONG
+textStepFour_long = "LONG Position made" //Text for greenlight LONG
+
+textStepOne_short = "EMA Cross for SHORT" //Text for redLight SHORT
+textStepTwo_short = "Price above Fast EMA for SHORT" //Text for purplelight SHORT
+textStepThree_short = "Red Dot WAVE for SHORT" //Text for amberlight SHORT
+textStepFour_short = "SHORT Position made" //Text for greenlight SHORT
+
+
+cancelold = true // if this is set to true a new stepOne will cancel out old stepOne stepTwo and StepThree Long or Short 
+
+
+buySignal = wtCross and wtCrossUp
+sellSignal = wtCross and wtCrossDown
+
+
+plotchar(sellSignal ? 105 : na , title = 'Sell circle', char='·', color = color.red, location = location.abovebar, size = size.small, transp = 50)
+plotchar(buySignal ? -107 : na, title = 'Buy circle', char='·', color = color.green, location = location.abovebar, size = size.small, transp = 50)
+
+
+lastRsi = valuewhen(wtFractalBot, rsi[2], 0)[2]
+
+wtGoldBuy = ((wtShowDiv and wtBullDiv) or (rsiShowDiv and rsiBullDiv)) and
+           wtLow_prev <= osLevel3 and
+           wt2 > osLevel3 and
+           wtLow_prev - wt2 <= -5 and
+           lastRsi < 30         
+stepOneShort = out > close 
+stepTwoShort = sellSignal and SELLSELL 
+stepThreeShort = sellSignal and SELLSELL 
+
+stepOneLong = out < close  
+stepTwoLong = buySignal and BUYBUY
+stepThreeLong = buySignal and BUYBUY

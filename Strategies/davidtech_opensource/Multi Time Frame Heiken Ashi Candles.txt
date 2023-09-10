@@ -1,0 +1,157 @@
+/@version=4
+study("Multi Time Frame Heiken Ashi Candles by @DaviddTech", overlay=true)
+rrepaint_cloud = input(true, title="Repaint Cloud?", group = "Strategy Config")
+printStars = input(title="Print Stars Using", defval="The Cloud", options=["The Cloud", "The Lines"],  group = "Strategy Config",tooltip="Choose which element will print the stars.\n\n * The Cloud does not repaint. \n * The Lines respect the Confirmed or Repaint option selected. \n Using Multi Time Frames  may lead to unrealistically profitable results. Depending on PAIR and timeframe one may work better than another. Lines do repaint")
+
+
+firstTf = input("15", title = "First", type = input.string, group = "TIMEFRAMES",inline="e1")
+firstTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e1")
+
+secondTf = input("30", title = "Second", type = input.string, group = "TIMEFRAMES",inline="e2")
+secondTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e2")
+
+thirdTf = input("60", title = "Third", type = input.string, group = "TIMEFRAMES",inline="e3")
+thirdTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e3")
+
+
+fourthTf = input("90", title = "Fourth", type = input.string, group = "TIMEFRAMES",inline="e4")
+fourthTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e4")
+
+fifthTf = input("120", title = "Fifth", type = input.string, group = "TIMEFRAMES",inline="e5")
+fifthTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e5")
+
+sixthTf = input("180", title = "Sixth", type = input.string, group = "TIMEFRAMES",inline="e6")
+sixthTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e6")
+
+seventhTf = input("", title = "Seventh", type = input.string, group = "TIMEFRAMES",inline="e7")
+seventhTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e7")
+
+eigthTf = input("", title = "Eigth", type = input.string, group = "TIMEFRAMES",inline="e8")
+eigthTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e8")
+
+ninethTf = input("", title = "Nineth", type = input.string, group = "TIMEFRAMES",inline="e9")
+ninethTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e9")
+
+tenthTf = input("", title = "Tenth", type = input.string, group = "TIMEFRAMES",inline="e10")
+tenthTf_Confirmed = input(title="", defval="Repaint", options=["Confirmed", "Repaint"], group = "TIMEFRAMES",inline="e10")
+
+
+rp_security(_symbol, _res, _src) => security(_symbol, _res, _src[barstate.isrealtime ? 1 : 0])
+
+
+close_repaint = repaint_cloud ? close : close[barstate.isrealtime ? 1 : 0] 
+open_repaint = repaint_cloud ? open : open[barstate.isrealtime ? 1 : 0]
+
+tf1 = security(heikinashi(syminfo.tickerid),firstTf == "" ? timeframe.period : firstTf,close_repaint > open_repaint, lookahead =false)
+tf2 = security(heikinashi(syminfo.tickerid),secondTf == "" ? timeframe.period : secondTf,close_repaint > open_repaint, lookahead = false)
+tf3 = security(heikinashi(syminfo.tickerid),thirdTf == "" ? timeframe.period : thirdTf,close_repaint > open_repaint, lookahead = false)
+tf4 = security(heikinashi(syminfo.tickerid),fourthTf == "" ? timeframe.period : fourthTf,close_repaint > open_repaint, lookahead = false)
+tf5 = security(heikinashi(syminfo.tickerid),fifthTf == "" ? timeframe.period : fifthTf,close_repaint > open_repaint, lookahead = false)
+tf6 = security(heikinashi(syminfo.tickerid),sixthTf == "" ? timeframe.period : sixthTf,close_repaint > open_repaint, lookahead = false)
+tf7 = security(heikinashi(syminfo.tickerid),seventhTf == "" ? timeframe.period : seventhTf,close_repaint > open_repaint, lookahead =false)
+tf8 = security(heikinashi(syminfo.tickerid),eigthTf == "" ? timeframe.period : eigthTf,close_repaint > open_repaint, lookahead = false)
+tf9 = security(heikinashi(syminfo.tickerid),ninethTf == "" ? timeframe.period : ninethTf,close_repaint > open_repaint, lookahead = false)
+tf10 = security(heikinashi(syminfo.tickerid),tenthTf == "" ? timeframe.period : tenthTf,close_repaint > open_repaint, lookahead = false)
+
+var up = false
+var down = false
+var condition = false
+
+
+
+conditionUp = tf1 and tf2 and tf3 and tf4 and tf5 and tf6 and tf7 and tf8 and tf9 and tf10 and not up
+conditionDown = not tf1 and not tf2 and not tf3 and not tf4 and not tf5 and not tf6 and not tf7 and not tf8 and not tf9 and not tf10 and not down
+
+
+// conditionUp = tf1 and tf2 and tf3 and tf4 and tf5 and tf6 and tf7 and not up
+// conditionDown = not tf1 and not tf2 and not tf3 and not tf4 and not tf5 and not tf6 and not tf7 and not down
+
+
+
+
+
+if conditionUp
+    up :=  true
+    down := false
+    condition := true
+    //strategy.entry("buy", strategy.long_long)
+    
+if conditionDown
+    down := true
+    up :=  false
+    condition := false
+ 
+upema = ema(high,3)
+
+lowerema = ema(low,50)
+
+up1 = plot(upema, title="long_long / short_short color",linewidth=2,color=color.new(condition ? #43ff4a : #ff0000,90))
+down1 = plot(lowerema, title="long_long / short_short color",linewidth=2,color=color.new(condition ? #43ff4a : #ff0000,90))
+
+
+lin_tf1 = security(heikinashi(syminfo.tickerid),firstTf == "" ? timeframe.period : firstTf, firstTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf2 = security(heikinashi(syminfo.tickerid),secondTf == "" ? timeframe.period : secondTf,secondTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf3 = security(heikinashi(syminfo.tickerid),thirdTf == "" ? timeframe.period : thirdTf,thirdTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf4 = security(heikinashi(syminfo.tickerid),fourthTf == "" ? timeframe.period : fourthTf,fourthTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf5 = security(heikinashi(syminfo.tickerid),fifthTf == "" ? timeframe.period : fifthTf,fifthTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf6 = security(heikinashi(syminfo.tickerid),sixthTf == "" ? timeframe.period : sixthTf,sixthTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf7 = security(heikinashi(syminfo.tickerid),seventhTf == "" ? timeframe.period : seventhTf,seventhTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf8 = security(heikinashi(syminfo.tickerid),eigthTf == "" ? timeframe.period : eigthTf,eigthTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf9 = security(heikinashi(syminfo.tickerid),ninethTf == "" ? timeframe.period : ninethTf,ninethTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+lin_tf10 = security(heikinashi(syminfo.tickerid),tenthTf == "" ? timeframe.period : tenthTf,tenthTf_Confirmed == "Confirmed" ? close_repaint > open_repaint : close > open, lookahead = barmerge.lookahead_on)
+
+
+
+var lin_up = false
+var lin_down = false
+var lin_condition = false
+
+
+lin_conditionUp = lin_tf1 and lin_tf2 and lin_tf3 and lin_tf4 and lin_tf5 and lin_tf6 and lin_tf7 and lin_tf8 and lin_tf9 and lin_tf10 and not lin_up
+lin_conditionDown = not lin_tf1 and not lin_tf2 and not lin_tf3 and not lin_tf4 and not lin_tf5 and not lin_tf6 and not lin_tf7 and not lin_tf8 and not lin_tf9 and not lin_tf10 and not lin_down
+
+
+
+lin_condition_long = lin_tf1 and lin_tf2 and lin_tf3 and lin_tf4 and lin_tf5 and lin_tf6 and lin_tf7 and lin_tf8 and lin_tf9 and lin_tf10
+lin_condition_short = not lin_tf1 and not lin_tf2 and not lin_tf3 and not lin_tf4 and not lin_tf5 and not lin_tf6 and not lin_tf7 and not lin_tf8 and not lin_tf9 and not lin_tf10 
+
+
+if lin_conditionUp
+    lin_up :=  true
+    lin_down := false
+    lin_condition := true
+    //strategy.entry("buy", strategy.long_long)
+    
+if lin_conditionDown
+    lin_down := true
+    lin_up :=  false
+    lin_condition := false
+ 
+
+
+
+
+plot(firstTf == "" ? na  : ema(close,10),title="10",color=color.new(lin_tf1 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(secondTf == "" ? na  : ema(close,15),title="15",color=color.new(lin_tf2 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(thirdTf == "" ? na  : ema(close,20),title="20",color=color.new(lin_tf3 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(fourthTf == "" ? na  : ema(close,25),title="25",color=color.new(lin_tf4 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(fifthTf == "" ? na  : ema(close,30),title="30",color=color.new(lin_tf5 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(sixthTf == "" ? na  : ema(close,35),title="35",color=color.new(lin_tf6 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(seventhTf == "" ? na  : ema(close,40),title="40",color=color.new(lin_tf7 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(eigthTf == "" ? na  : ema(close,45),title="45",color=color.new(lin_tf8 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(ninethTf == "" ? na  : ema(close,50),title="50",color=color.new(lin_tf9 ? #43ff4a : #ff0000,60),linewidth=1)
+plot(tenthTf == "" ? na  : ema(close,55),title="55",color=color.new(lin_tf10 ? #43ff4a : #ff0000,60),linewidth=1)
+
+
+fill(up1,down1, color=color.new(condition ? #43ff4a : #ff0000,85))
+
+
+
+
+
+long_long= printStars == "The Cloud" ? conditionUp : lin_conditionUp
+longexit= printStars == "The Cloud" ? conditionDown : lin_conditionDown
+shortexit=  printStars == "The Cloud" ? conditionUp : lin_conditionUp
+short_short=  printStars == "The Cloud" ? conditionDown : lin_conditionDown //and close < close[1]
+
+

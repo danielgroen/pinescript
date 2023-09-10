@@ -1,0 +1,56 @@
+//@version=4
+strategy(title="Know Sure Thing")
+
+
+//** This DaviddTech indicator is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License or (at your option) any later version. **//
+//** This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. **//
+//** You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>  **//
+
+
+lenema = input(200, minval=1, title="EMA Length", group="Trend Direction EMA")
+srcema = input(close, title="EMA Source", group="Trend Direction EMA")
+
+outema = ema(srcema, lenema)
+
+emacolor = outema > close ? color.red: color.green
+plot(outema, title="EMA", color=emacolor)
+
+
+roclen1 = input(10, minval=1, title = "ROC Length #1")
+roclen2 = input(15, minval=1, title = "ROC Length #2")
+roclen3 = input(20, minval=1, title = "ROC Length #3")
+roclen4 = input(30, minval=1, title = "ROC Length #4")
+smalen1 = input(10, minval=1, title = "SMA Length #1")
+smalen2 = input(10, minval=1, title = "SMA Length #2")
+smalen3 = input(10, minval=1, title = "SMA Length #3")
+smalen4 = input(15, minval=1, title = "SMA Length #4")
+siglen = input(9, minval=1, title = "Signal Line Length")
+smaroc(roclen, smalen) => sma(roc(close, roclen), smalen)
+kst = smaroc(roclen1, smalen1) + 2 * smaroc(roclen2, smalen2) + 3 * smaroc(roclen3, smalen3) + 4 * smaroc(roclen4, smalen4)
+sig = sma(kst, siglen)
+plot(kst, color=#009688, title="KST")
+plot(sig, color=#F44336, title="Signal")
+hline(0, title="Zero", color = #787B86)
+
+
+textStepOne_long = "Above EMA for LONG" //Text for redLight LONG
+textStepTwo_long = "KST and SIG below O for LONG" //Text for purplelight LONG
+textStepThree_long = "KST crossover SIG for LONG" //Text for amberlight LONG
+textStepFour_long = "LONG Position made" //Text for greenlight LONG
+
+textStepOne_short = "Below EMA for SHORT" //Text for redLight SHORT
+textStepTwo_short = "KST and SIG above O for SHORT" //Text for purplelight SHORT
+textStepThree_short = "KST crossunder SIG for SHORT" //Text for amberlight SHORT
+textStepFour_short = "SHORT Position made" //Text for greenlight SHORT
+
+
+cancelold = true // if this is set to true a new stepOne will cancel out old stepOne stepTwo and StepThree Long or Short 
+
+
+stepOneShort =  close < outema  // e.g  stepTwoShort = crossover(a,b) and a=b
+stepTwoShort = close < outema and kst > 0 and sig > 0 and crossover(sig,kst)  // e.g  stepTwoShort = crossover(a,b) and a=b
+stepThreeShort = true
+
+stepOneLong =  close > outema 
+stepTwoLong = close > outema and kst < 0 and sig < 0 and crossover(kst,sig)
+stepThreeLong = true

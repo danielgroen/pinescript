@@ -1,0 +1,162 @@
+//@version=5
+// Copyright all rights reserved to DaviddTech
+strategy('Triple SuperTrend with Volume', overlay=true)
+// SOURCE: https://www.youtube.com/watch?v=77qV0jKb8_M
+// Timeframe 1h, EURUSD
+
+
+// ****************************************************************************//
+// ---------------------------------> Edit here ------------------------------ //
+// ****************************************************************************//
+
+isStrategyPlot = input.bool(true, "Plot strategy indicators(except oscillators)", group='Strategy: base')
+
+st_trendSMALen = input.int(title="SMA Len", defval=200, group='Strategy: base')
+
+st_overboughtLevel = input.int(title="Stochastic overbought", defval=80, group='Strategy: base')
+st_oversoldLevel = input.int(title="Stochastic oversold", defval=20, group='Strategy: base')
+
+st_stochPeriodK = input.int(title="Stochastic %K Length", defval=14, group='Strategy: base')
+st_stochSmoothK = input.int(title="Stochastic %K Smoothing", defval=1, group='Strategy: base')
+st_stochPeriodD = input.int(title="Stochastic %D Smoothing", defval=3, group='Strategy: base')
+
+
+st_stochRSISmoothK = input.int(3, "Stochastic RSI %K", minval=1, group='Strategy: base')
+st_stochRSISmoothD = input.int(3, "Stochastic RSI %D", minval=1, group='Strategy: base')
+st_stochRSILengthRSI = input.int(14, "Stochastic RSI Length", minval=1, group='Strategy: base')
+st_stochRSILengthStoch = input.int(14, "Stochastic RSI Length", minval=1, group='Strategy: base')
+st_stochRSISrc = input.source(close, title="RSI Source", group='Strategy: base')
+
+st_TSVLength  = input.int(13, title="Time Serires Volume Length", group='Strategy: base')
+st_TSVSMALength = input.int(7, title="Time Serires Volume MA Length", group='Strategy: base')
+
+st_superTrend1ARTPeriod = input.int(10, "Super Trend #1 ATR Length", group='Strategy: base')
+st_superTrend1Factor = input.float(1.0, "Super Trend #1 Factor", step = 0.01, group='Strategy: base')
+
+st_superTrend2ARTPeriod = input.int(11, "Super Trend #2 ATR Length", group='Strategy: base')
+st_superTrend2Factor = input.float(2.0, "Super Trend #2 Factor", step = 0.01, group='Strategy: base')
+
+st_superTrend3ARTPeriod = input.int(12, "Super Trend #3 ATR Length", group='Strategy: base')
+st_superTrend3Factor = input.float(3.0, "Super Trend #3 Factor", step = 0.01, group='Strategy: base')
+
+// Trend SMA
+st_trendSMA = ta.sma(close, st_trendSMALen)
+st_isSmaTrendUP = close > st_trendSMA
+st_isSmaTrendDown = close < st_trendSMA
+plot(isStrategyPlot ? st_trendSMA : na, 'Trend SMA')
+
+
+// Stochastic trigers
+st_stochK = ta.sma(ta.stoch(close, high, low, st_stochPeriodK), st_stochSmoothK)
+st_stochD = ta.sma(st_stochK, st_stochPeriodD)
+
+
+// Stochastic RSI - alternative trigger
+st_stochRSI = ta.rsi(st_stochRSISrc, st_stochRSILengthRSI)
+st_stochRSIK = ta.sma(ta.stoch(st_stochRSI, st_stochRSI, st_stochRSI, st_stochRSILengthStoch), st_stochRSISmoothK)
+st_stochRSID = ta.sma(st_stochRSIK, st_stochRSISmoothD)
+
+
+st_isOverSold = ((st_stochK < st_oversoldLevel or st_stochD < st_oversoldLevel) and st_stochRSIK < st_overboughtLevel and st_stochRSID < st_overboughtLevel) or ((st_stochRSIK < st_oversoldLevel or st_stochRSID < st_oversoldLevel) and st_stochK < st_overboughtLevel and st_stochD < st_overboughtLevel)
+st_isOverBought = ((st_stochK > st_overboughtLevel or st_stochD > st_overboughtLevel) and st_stochRSIK > st_oversoldLevel and st_stochRSID > st_oversoldLevel) or ((st_stochRSIK > st_overboughtLevel or st_stochRSID > st_overboughtLevel) and st_stochK > st_oversoldLevel and st_stochD > st_oversoldLevel)
+
+
+// Time Segmented Volume
+st_TSV = math.sum(close>close[1]?volume*(close-close[1]):close<close[1]?volume*(close-close[1]):0, st_TSVLength)
+st_TSVSMA = ta.sma(st_TSV, st_TSVSMALength)
+st_isTSVUp = st_TSV > 0
+st_isTSVDown = st_TSV < 0
+
+// Supertrend
+st_superTrendBodyMiddle = plot(isStrategyPlot ? (open + close) / 2 : na, "Super Trend Body Middle", display=display.none)
+
+[st_supertrend1, st_superTrendDirection1] = ta.supertrend(st_superTrend1Factor, st_superTrend1ARTPeriod)
+st_superTrend1UpTrend = plot(isStrategyPlot and st_superTrendDirection1 < 0 ? st_supertrend1 : na, "Supert Trend #1 Up Trend", color = color.green, style=plot.style_linebr)
+st_superTrend1DownTrend = plot(isStrategyPlot and st_superTrendDirection1 < 0 ? na : st_supertrend1, "Supert Trend #1 Down Trend", color = color.red, style=plot.style_linebr)
+
+[st_supertrend2, st_superTrendDirection2] = ta.supertrend(st_superTrend2Factor, st_superTrend2ARTPeriod)
+st_superTrend2UpTrend = plot(isStrategyPlot and st_superTrendDirection2 < 0 ? st_supertrend2 : na, "Supert Trend #2 Up Trend", color = color.green, style=plot.style_linebr)
+st_superTrend2DownTrend = plot(isStrategyPlot and st_superTrendDirection2 < 0 ? na : st_supertrend2, "Supert Trend #2 Down Trend", color = color.red, style=plot.style_linebr)
+
+[st_supertrend3, st_superTrendDirection3] = ta.supertrend(st_superTrend3Factor, st_superTrend3ARTPeriod)
+st_superTrend3UpTrend = plot(isStrategyPlot and st_superTrendDirection3 < 0 ? st_supertrend3 : na, "Supert Trend #3 Up Trend", color = color.green, style=plot.style_linebr)
+st_superTrend3DownTrend = plot(isStrategyPlot and st_superTrendDirection3 < 0 ? na : st_supertrend3, "Supert Trend #3 Down Trend", color = color.red, style=plot.style_linebr)
+
+st_superTrendDirectoinCountGreen = st_superTrendDirection1 < 0 ? 1 : 0
+st_superTrendDirectoinCountGreen := st_superTrendDirectoinCountGreen + (st_superTrendDirection2 < 0 ? 1 : 0)
+st_superTrendDirectoinCountGreen := st_superTrendDirectoinCountGreen + (st_superTrendDirection3 < 0 ? 1 : 0)
+st_isTwoSuperTrenGreen = st_superTrendDirectoinCountGreen >= 2
+
+st_superTrendDirectoinCountRed = st_superTrendDirection1 > 0 ? 1 : 0
+st_superTrendDirectoinCountRed := st_superTrendDirectoinCountRed + (st_superTrendDirection2 > 0 ? 1 : 0)
+st_superTrendDirectoinCountRed := st_superTrendDirectoinCountRed + (st_superTrendDirection3 > 0 ? 1 : 0)
+st_isTwoSuperTrenRed = st_superTrendDirectoinCountRed >= 2
+
+//Full Algo
+
+var float st_breakEven = na
+var float st_stopDelta = na
+
+enter_long = st_isSmaTrendUP and st_isTSVUp and st_isTwoSuperTrenGreen and st_isOverSold
+var float longStopLossVal = na
+var float longTakeProfitVal = na
+var float st_minSuperTrend = na
+if enter_long and strategy.position_size == 0
+    st_breakEven := open
+    st_minSuperTrend := math.min(st_supertrend1, st_supertrend2, st_supertrend3)
+    longStopLossVal := st_minSuperTrend
+    st_stopDelta :=  math.abs(open - st_minSuperTrend)
+    longTakeProfitVal := open + st_stopDelta // 1:1
+
+enter_short = st_isSmaTrendDown and st_isTSVDown and st_isTwoSuperTrenRed and st_isOverBought
+var float shortStopLossVal = na
+var float shortTakeProfitVal = na
+var float st_maxSuperTrend = na
+if enter_short and strategy.position_size == 0
+    st_breakEven := close
+    st_maxSuperTrend := math.max(st_supertrend1, st_supertrend2, st_supertrend3)
+    shortStopLossVal := st_maxSuperTrend
+    st_stopDelta := math.abs(st_maxSuperTrend - close)
+    shortTakeProfitVal := close - st_stopDelta // 1:1
+
+force_exit_signal_short = false
+force_exit_signal_long = false
+
+// Dashboard lights
+_take_long_one = st_isSmaTrendUP and st_isTSVUp
+_take_long_two = st_isTwoSuperTrenGreen
+_take_long_three = st_isOverSold
+
+_take_short_one = st_isSmaTrendDown and st_isTSVDown
+_take_short_two = st_isTwoSuperTrenRed
+_take_short_three = st_isOverBought
+
+
+
+
+isLongStopLoss = strategy.position_size > 0 and low <= longStopLossVal
+isLongTakeProfit = false
+if strategy.position_size > 0 and high >= longTakeProfitVal
+    if longStopLossVal != st_breakEven
+        longStopLossVal := st_breakEven
+        longTakeProfitVal := longTakeProfitVal + st_stopDelta
+    else
+        isLongTakeProfit := true
+
+isShortStopLoss = strategy.position_size < 0 and high >= shortStopLossVal
+isShortTakeProfit = false
+if strategy.position_size < 0 and low <= shortTakeProfitVal
+    if shortStopLossVal != st_breakEven
+        shortStopLossVal := st_breakEven
+        shortTakeProfitVal := shortTakeProfitVal - st_stopDelta
+    else
+        isShortTakeProfit := true
+// TEST
+
+strategy.close('Long', isLongStopLoss or isLongTakeProfit, qty_percent=100)
+strategy.entry(id='Long', direction=strategy.long, when=enter_long, comment='Long')
+
+
+
+strategy.close('Short', isShortStopLoss or isShortTakeProfit, qty_percent=100)
+strategy.entry(id='Short', direction=strategy.short, when=enter_short, comment='Short')
