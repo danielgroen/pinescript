@@ -1,0 +1,17 @@
+Name,Value
+"__indicatorName","3Commas Visible DCA Strategy"
+"Strategy","Long"
+"Profit currency","Quote (USDT)"
+"Base order Size",25
+"Safety order Size",50
+"Entry at Cross Over / Under","Under"
+"Short Moving Average","SMA"
+"Period",50
+"Long Moving Average","HMA"
+"Target profit (%)",1.5
+"Stop Loss (%)",50
+"Max safety trades count",10
+"Price deviation to open safety orders (% from initial order)",0.2
+"Safety order volume scale",1.83
+"Safety order step scale",1.19
+"Enable live mode and stop backtesting",true
