@@ -1,0 +1,210 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+
+//@version=5
+
+// TODO::
+// - roundings
+// - Flat grid exclusion
+// - Plot long/short orders
+// - Backtest table
+// -
+// -
+
+import tradingmaestro12/MyLibrary/4 as lib
+
+strategy('ABCD Patterns [BETA] @tradingmaestro12', 
+	 initial_capital=100,
+	 commission_type=strategy.commission.percent,
+	 commission_value=0.055,
+	 slippage=3,
+	 default_qty_type=strategy.percent_of_equity,
+	 default_qty_value=100,
+	 //  margin_long=100, 
+	 //  margin_short=100,
+	 overlay=true)
+
+
+// #### ######### ####
+// #### VARIABLES ####
+// #### ######### ####
+
+string long 				= "Long"
+string short 				= "Short"
+string both 				= "Both"
+
+var bool longCondition 		= na
+var bool shortCondition 	= na
+var float positionSize	 	= (strategy.initial_capital + strategy.netprofit) / close
+
+colors = lib.colorConstructor.new()
+
+
+
+// #### ###### ####
+// #### INPUTS ####
+// #### ###### ####
+
+// #### GENERAL
+generalLabel = "⚙️ Market conditions"
+direction = input.string(both, "Strategy Direction", options=[long, short, both], group=generalLabel)
+precisionBool = input.bool(defval= false, title="Override precision with:", inline="precision", group=generalLabel)
+precisionNumber = input.float(defval= 0, title="", tooltip="Used to round orders. The minimum contract for BTC is 0.001. If so, fill in here: 0.001", inline="precision", group=generalLabel)
+
+// #### PERFORMANCE
+performanceLabel = '🚀 Performance'
+isPlotTradingWindow = input.bool(true, 'Plot trading window', group = performanceLabel)
+isPlotLogica = input.bool(true, 'Plot logica', group = performanceLabel)
+
+// #### ######### ####
+// #### COMPUTING #### ##################################################################
+// #### ######### #### STRATEGY LOGICA BELOW
+
+strategyGroupLabel = "Strategy"
+
+// #### #########
+// #### COND 1
+
+length = input.int(5, title="ABCD Length", group = strategyGroupLabel)
+up1 = ta.pivothigh(high, length, length)
+dn1 = ta.pivotlow(low, length, length)
+upcount = ta.barssince(not na(up1))
+dncount = ta.barssince(not na(dn1))
+ppp = not na(dn1) and dncount[1] > upcount[1] ? dn1 : not na(up1) and dncount[1] < upcount[1] ? up1 : na
+
+n = bar_index
+a = ta.valuewhen(not na(ppp), n, 2)
+b = ta.valuewhen(not na(ppp), n, 1)
+c = ta.valuewhen(not na(ppp), n, 0)
+
+av = ta.valuewhen(not na(ppp), ppp, 2)
+bv = ta.valuewhen(not na(ppp), ppp, 1)
+cv = ta.valuewhen(not na(ppp), ppp, 0)
+
+// #### PLOTS
+plotPpp = isPlotLogica and ppp
+plotUp = isPlotLogica and not na(up1) and dncount[1] < upcount[1] ? up1 : na
+plotDn = isPlotLogica and not na(dn1) and dncount[1] > upcount[1] ? dn1 : na
+
+plot(plotUp, title='pivot high', offset=-length)
+plot(plotDn, title='pivot low', offset=-length)
+plot(ppp, title='pivot line', offset=-length)
+
+
+// #### #########
+// #### COND 2
+
+atrInput = input.int(14, 'ATR', group=strategyGroupLabel)
+atr = ta.atr(atrInput)
+
+// #### PLOTS
+plot(atr, title="ATR", display=display.data_window)
+
+
+// #### ################ #### STRATEGY LOGICA ABOVE
+// #### ENTRY CONDITIONS #### ##################################################################
+// #### ################ ####
+
+// #### ################
+// #### MARKET CONDITIONS
+
+isDisableFlatGridOrders = input.bool(false, title="Disable flat market entries", group=generalLabel)
+avgPrice = ta.sma(close, 100), percentage = 1
+flatMarket = math.abs(close - avgPrice) <= (avgPrice * percentage / 100)
+
+// #### LONG CONDITION
+ABCD_bull = av > bv and cv - bv <= 0.89 * (av - bv) and cv - bv >= 0.38 * (av - bv)
+ABCD_bull1 = cv - low >= av - bv and ABCD_bull
+longCondition := ABCD_bull1 and not ABCD_bull1[1]
+
+// #### SHORT CONDITION
+ABCD_bear = av < bv and bv - cv <= 0.89 * (bv - av) and bv - cv >= 0.38 * (bv - av)
+ABCD_bear1 = high - cv >= bv - av and ABCD_bear
+shortCondition := ABCD_bear1 and not ABCD_bear1[1]
+
+// #### ################
+// #### TIME CONDITIONS
+timeGroupLabel = '📅 Time and days'
+
+isAllowedTradingDay () =>
+	inlineItems = 'isTradingDay'
+
+	mo = input.bool(true, 'M', inline=inlineItems, group=timeGroupLabel)
+	tu = input.bool(true, 'T', inline=inlineItems, group=timeGroupLabel)
+	we = input.bool(true, 'W', inline=inlineItems, group=timeGroupLabel)
+	th = input.bool(true, 'T', inline=inlineItems, group=timeGroupLabel)
+	fr = input.bool(true, 'F', inline=inlineItems, group=timeGroupLabel)
+	sa = input.bool(true, 'S', inline=inlineItems, group=timeGroupLabel)
+	su = input.bool(true, 'S', inline=inlineItems, group=timeGroupLabel)
+
+	dayofweek(time) == dayofweek.monday and mo or
+	 dayofweek(time) == dayofweek.tuesday and tu or
+	 dayofweek(time) == dayofweek.wednesday and we or
+	 dayofweek(time) == dayofweek.thursday and th or
+	 dayofweek(time) == dayofweek.friday and fr or
+	 dayofweek(time) == dayofweek.saturday and sa or
+	 dayofweek(time) == dayofweek.sunday and su
+
+enableLiveModeInline = 'liveMode'
+enableLiveMode = input.bool(false, title="Enable live mode from:", inline=enableLiveModeInline, group=timeGroupLabel)
+targetDate = input.time(timestamp('2023, 10, 06'), title="", inline=enableLiveModeInline, group=timeGroupLabel)
+inTradingWindow = enableLiveMode == false or time > targetDate
+
+// #### ############ ####
+// #### ENTRY ORDERS ####
+// #### ############ ####
+if precisionBool
+	if positionSize < precisionNumber
+		positionSize := precisionNumber
+
+if not isDisableFlatGridOrders or isDisableFlatGridOrders and not flatMarket
+	if inTradingWindow and isAllowedTradingDay()
+		if shortCondition
+			strategy.entry(short, strategy.short, qty=positionSize)
+			// lib.plotOrder()
+
+		if longCondition
+			strategy.entry(long, strategy.long, qty=positionSize)
+
+
+// #### ############ ####
+// #### EXIT  ORDERS ####
+// #### ############ ####
+
+takeProfit = strategy.position_avg_price * atr
+stoploss = strategy.position_avg_price * -atr
+
+// todo:: look here: // https://www.tradingview.com/script/ZeaaEnKo-Strategy-Template/
+
+// if strategy.position_size < 0
+// 	strategy.exit(long, limit=takeProfit, stop=stoploss, comment_profit = "Take profit", comment_loss = "Stop Loss")
+
+
+// #### ######## ####
+// #### PLOTTING ####
+// #### ######## ####
+
+
+bgcolor(not isAllowedTradingDay() and isPlotTradingWindow or not inTradingWindow ? color.new(colors.red, 80) : na)
+bgcolor(isPlotTradingWindow and isDisableFlatGridOrders and flatMarket and inTradingWindow ? color.new(colors.red, 80) : na)
+
+
+// TABLE
+canPlotTable = input.bool(true, title = "Plot table", group = performanceLabel)
+if canPlotTable
+	lib.tableStrat()
+
+
+
+// #### ######## ####
+// #### NOTES ####
+// #### ######## ####
+notes = input.text_area(title = "notes", defval = '')
+
+// DEBUGGING LABELS
+// label.new(x=bar_index, y=high, text=str.tostring(precisionNumber), yloc=yloc.belowbar, color=color.new(color.red,100), style=label.style_label_down, textcolor=color.white)
+
+var int losingOrders = 0
+var int winningOrders = 0
+var int totalOrders = 0
+

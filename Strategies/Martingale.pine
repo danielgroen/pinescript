@@ -2,7 +2,7 @@
 
 strategy(
            title='Martingale',
-           calc_on_order_fills=true,
+           calc_on_order_fills=false,
            calc_on_every_tick=false,
            initial_capital=100,
            commission_type=strategy.commission.percent,

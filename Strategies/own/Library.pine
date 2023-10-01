@@ -1,0 +1,69 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+
+//@version=5
+
+// @description TODO: add library description here
+library("MyLibrary")
+
+export type colorConstructor
+	color red = #f23645
+	color green = #089981
+	color gray = #787b86
+
+colors = colorConstructor.new()
+
+// @function PlotOrder: plotting orders
+// @param string direction
+// @param int takeProfit
+// @param int stopLoss
+// @returns box array
+export plotOrder (string direction, int takeProfit, int stopLoss ) =>
+	source = close
+	left = bar_index + 1
+	width = 20
+
+	line.new(left, source, left + width, source, color = color.new(#787b86, 0))
+
+	if direction == "Long"
+		box.new(
+			 left,
+			 takeProfit,
+			 left + width,
+			 source,
+			 border_color=na,
+				 //  text = "price: " + str.tostring(source),
+			 text_color = color.white,
+			 text_size = size.normal,
+			 text_valign = text.align_bottom,
+			 bgcolor = color.new(#089981, 80)
+			 )
+		box.new(
+			 left,
+			 source,
+			 left + width,
+			 stopLoss,
+			 border_color=na, 
+			 bgcolor = color.new(#f23645, 80)
+			 )
+	if direction == 'Short'
+		box.new(
+			 left,
+			 source,
+			 left + width,
+			 stopLoss,
+			 border_color=na, 
+			 bgcolor = color.new(#f23645, 80)
+			 )
+		box.new(
+			 left,
+			 takeProfit,
+			 left + width,
+			 source,
+			 border_color=na,
+			 // text = "price: " + str.tostring(source),
+			 text_color = color.white,
+			 text_size = size.normal,
+			 text_valign = text.align_bottom,
+			 bgcolor = color.new(#089981, 80)
+			 )
