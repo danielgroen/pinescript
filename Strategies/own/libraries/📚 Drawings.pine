@@ -1,0 +1,67 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+
+//@version=5
+
+import tradingmaestro12/variables/1 as variables
+
+// @description This library captures all the plotting and drawing over the chart
+library("Drawings" , overlay = true)
+
+
+colors = variables.colorConstructor.new()
+
+// @function Order: Drawing orders on the chart
+// @param string direction
+// @param int takeProfit
+// @param int stopLoss
+// @returns box array
+export Order (string direction, int takeProfit, int stopLoss ) =>
+	source = close
+	left = bar_index + 1
+	width = 20
+
+	line.new(left, source, left + width, source, color = color.new(#787b86, 0))
+
+	if direction == "Long"
+		box.new(
+			 left,
+			 takeProfit,
+			 left + width,
+			 source,
+			 border_color=na,
+				 //  text = "price: " + str.tostring(source),
+			 text_color = color.white,
+			 text_size = size.normal,
+			 text_valign = text.align_bottom,
+			 bgcolor = color.new(#089981, 80)
+			 )
+		box.new(
+			 left,
+			 source,
+			 left + width,
+			 stopLoss,
+			 border_color=na, 
+			 bgcolor = color.new(#f23645, 80)
+			 )
+	if direction == 'Short'
+		box.new(
+			 left,
+			 source,
+			 left + width,
+			 stopLoss,
+			 border_color=na, 
+			 bgcolor = color.new(#f23645, 80)
+			 )
+		box.new(
+			 left,
+			 takeProfit,
+			 left + width,
+			 source,
+			 border_color=na,
+			 // text = "price: " + str.tostring(source),
+			 text_color = color.white,
+			 text_size = size.normal,
+			 text_valign = text.align_bottom,
+			 bgcolor = color.new(#089981, 80)
+			 )

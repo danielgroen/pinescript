@@ -1,0 +1,222 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+//@version=5
+// TODO::
+// - Plot long/short orders
+// - exit logica
+// - increase performance
+
+import tradingmaestro12/Tables/2 as Table
+import tradingmaestro12/variables/2 as Variables
+import tradingmaestro12/Drawings/1 as Drawings
+import tradingmaestro12/Strategy/2 as Strat
+
+strategy('ABCD Patterns [BETA] @tradingmaestro12', 
+	 initial_capital=100,
+	 commission_type=strategy.commission.percent,
+	 commission_value=0.055,
+	 slippage=3,
+	 default_qty_type=strategy.percent_of_equity,
+	 default_qty_value=100,
+	 overlay=true)
+
+
+// ######### ####
+// VARIABLES ####
+// ######### ####
+
+
+var string long 				= "Long" // VAR Created = on bar zero.
+var string short 				= "Short" // without VAR = Created on every bar.
+var string both 				= "Both"
+
+var bool longCondition 		= na
+var bool shortCondition 	= na
+var float positionSize	 	= (strategy.initial_capital + strategy.netprofit) / close
+
+var Colors = Variables.ColorConstructor.new()
+
+var generalLabel = "⚙️ Market conditions"
+var performanceLabel = '🚀 Performance'
+var strategyGroupLabel = "Strategy"
+var timeGroupLabel = '📅 Time and days'
+
+// ######
+// INPUTS
+// ######
+
+
+// GENERAL
+var direction = input.string(both, "Strategy Direction", options=[long, short, both], group=generalLabel)
+var precisionBool = input.bool(defval= false, title="Override precision with:", inline="precision", group=generalLabel)
+var precisionNumber = input.float(defval= 0, title="", tooltip="Used to round orders. The minimum contract for BTC is 0.001. If so, fill in here: 0.001", inline="precision", group=generalLabel)
+
+// PERFORMANCE
+var isPlotTradingWindow = input.bool(true, 'Plot trading window', group = performanceLabel)
+var isPlotLogica = input.bool(true, 'Plot logica', group = performanceLabel)
+
+// ######### #### STRATEGY LOGICA BELOW
+// COMPUTING #### #####################
+// ######### #### 
+
+
+// #########
+// COND 1
+
+var length = input.int(5, title="ABCD Length", group = strategyGroupLabel)
+up1 = ta.pivothigh(high, length, length)
+dn1 = ta.pivotlow(low, length, length)
+upcount = ta.barssince(not na(up1))
+dncount = ta.barssince(not na(dn1))
+ppp = not na(dn1) and dncount[1] > upcount[1] ? dn1 : not na(up1) and dncount[1] < upcount[1] ? up1 : na
+
+n = bar_index
+a = ta.valuewhen(not na(ppp), n, 2)
+b = ta.valuewhen(not na(ppp), n, 1)
+c = ta.valuewhen(not na(ppp), n, 0)
+
+av = ta.valuewhen(not na(ppp), ppp, 2)
+bv = ta.valuewhen(not na(ppp), ppp, 1)
+cv = ta.valuewhen(not na(ppp), ppp, 0)
+
+// PLOTS
+plotPpp = isPlotLogica and ppp ? ppp : na
+plotUp = isPlotLogica and not na(up1) and dncount[1] < upcount[1] ? up1 : na
+plotDn = isPlotLogica and not na(dn1) and dncount[1] > upcount[1] ? dn1 : na
+
+plot(plotUp, title='pivot high', offset=-length)
+plot(plotDn, title='pivot low', offset=-length)
+plot(plotPpp, title='pivot line', offset=-length)
+
+
+// #########
+// COND 2
+
+var atrInput = input.int(14, 'ATR', group=strategyGroupLabel)
+atr = ta.atr(atrInput)
+
+// PLOTS
+plot(atr, title="ATR", display=display.data_window)
+
+
+// ################ #### 
+// ENTRY CONDITIONS #### #####################
+// ################ #### STRATEGY LOGICA ABOVE
+
+// ################
+// MARKET CONDITIONS
+
+var isDisableFlatGridOrders = input.bool(false, title="Disable flat market entries", group=generalLabel)
+avgPrice = ta.sma(close, 100), percentage = 1
+flatMarket = math.abs(close - avgPrice) <= (avgPrice * percentage / 100)
+
+// LONG CONDITION
+ABCD_bull = av > bv and cv - bv <= 0.89 * (av - bv) and cv - bv >= 0.38 * (av - bv)
+ABCD_bull1 = cv - low >= av - bv and ABCD_bull
+longCondition := ABCD_bull1 and not ABCD_bull1[1]
+
+// SHORT CONDITION
+ABCD_bear = av < bv and bv - cv <= 0.89 * (bv - av) and bv - cv >= 0.38 * (bv - av)
+ABCD_bear1 = high - cv >= bv - av and ABCD_bear
+shortCondition := ABCD_bear1 and not ABCD_bear1[1]
+
+// ################
+// TIME CONDITIONS
+
+var inlineItems = 'isTradingDay'
+var mo = input.bool(true, 'M', inline=inlineItems, group=timeGroupLabel)
+var tu = input.bool(true, 'T', inline=inlineItems, group=timeGroupLabel)
+var we = input.bool(true, 'W', inline=inlineItems, group=timeGroupLabel)
+var th = input.bool(true, 'T', inline=inlineItems, group=timeGroupLabel)
+var fr = input.bool(true, 'F', inline=inlineItems, group=timeGroupLabel)
+var sa = input.bool(true, 'S', inline=inlineItems, group=timeGroupLabel)
+var su = input.bool(true, 'S', inline=inlineItems, group=timeGroupLabel)
+
+
+
+var enableLiveModeInline = 'liveMode'
+var enableLiveMode = input.bool(false, title="Enable live mode from:", inline=enableLiveModeInline, group=timeGroupLabel)
+var targetDate = input.time(timestamp('2023, 10, 06'), title="", inline=enableLiveModeInline, group=timeGroupLabel)
+inTradingWindow = enableLiveMode == false or time > targetDate
+
+// ############
+// ENTRY ORDERS
+// ############
+if precisionBool
+	if positionSize < precisionNumber
+		positionSize := precisionNumber
+
+if not isDisableFlatGridOrders or isDisableFlatGridOrders and not flatMarket
+	if inTradingWindow and Strat.isAllowedTradingDay(mo, tu, we, th, fr, sa, su)
+
+		if shortCondition
+			strategy.entry(short, strategy.short, qty=positionSize)
+			// lib.plotOrder()
+
+		if longCondition
+			strategy.entry(long, strategy.long, qty=positionSize)
+
+
+// ############
+// EXIT  ORDERS
+// ############
+
+// takeProfit = strategy.position_avg_price * atr
+// stoploss = strategy.position_avg_price * -atr
+
+var stopLossPercent = 1
+var takeProfitPercent = 3
+var float stopLossPrice = na
+var float takeProfitPrice = na
+var exitGroupLabel = "🚦 Exit conditions"
+
+var takeProfitBool = input.bool(defval= false, title="Take profit with:", inline="takeProfit", group=exitGroupLabel)
+var takeProfitType = input.string("R:R", options=["R:R", "ATR"], title="", tooltip="", inline="takeProfit", group=exitGroupLabel)
+
+var stopLossBool = input.bool(defval= false, title="Stop loss with:", inline="StopLoss", group=exitGroupLabel)
+var stopLossType = input.string("R:R", options=["R:R", "ATR"], title="", tooltip="", inline="StopLoss", group=exitGroupLabel)
+
+if strategy.opentrades > 0 and strategy.position_size > 0 and (takeProfitBool or stopLossBool)   //if there is an open position and it is a long position and either a take profit or sto ploss is selected.
+    if takeProfitBool
+        takeProfitPrice := strategy.position_avg_price * (1 + (takeProfitPercent / 100))
+    else
+        takeProfitPrice := na
+    if stopLossBool
+        stopLossPrice := strategy.position_avg_price * (1 - (stopLossPercent / 100))
+    else
+        stopLossPrice := na
+    strategy.exit(id = "Exit",from_entry=long, qty_percent = 100, limit = takeProfitPrice, stop = stopLossPrice, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
+
+//Stop Loss and Take Profit for Short Positions
+if strategy.opentrades > 0 and strategy.position_size < 0 and (takeProfitBool or stopLossBool)   //if there is an open position and it is a short position and either a take profit or sto ploss is selected.
+    if takeProfitBool
+        takeProfitPrice := strategy.position_avg_price * (1 - (takeProfitPercent / 100))
+    else
+        takeProfitPrice := na
+    if stopLossBool
+        stopLossPrice := strategy.position_avg_price * (1 + (stopLossPercent / 100))
+    else
+        stopLossPrice := na
+    strategy.exit(id = "Exit", from_entry=short, qty_percent = 100, limit = takeProfitPrice, stop = stopLossPrice, comment_profit = "Short Take Profit", comment_loss = "Short Stop Loss")
+
+// ########
+// PLOTTING
+// ########
+
+
+bgcolor(not Strat.isAllowedTradingDay(mo, tu, we, th, fr, sa, su) and isPlotTradingWindow or not inTradingWindow ? color.new(Colors.red, 80) : na)
+bgcolor(isPlotTradingWindow and isDisableFlatGridOrders and flatMarket and inTradingWindow ? color.new(Colors.red, 80) : na)
+
+
+// TABLES
+var canPlotTable = input.bool(true, title = "Plot table", group = performanceLabel)
+if canPlotTable
+	Table.StrategyMetrics()
+
+if canPlotTable
+	Table.Debug(4)
+
+// ########
+// NOTES
+// ########
+var notes = input.text_area(title = "notes", defval = '')

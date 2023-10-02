@@ -1,0 +1,19 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+
+//@version=5
+
+// @description Variables library
+library("variables", overlay = true)
+
+
+
+export type ColorConstructor
+	color red 		= #f23645
+	color green 	= #089981
+	color gray 		= #787b86
+	color pink 		= #ff45a2
+	color blue 		= color.blue
+
+	color table_label = #135082
+	color table_value = #1975c1

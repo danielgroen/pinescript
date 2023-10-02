@@ -1,0 +1,93 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Tradingmaestro12
+
+//@version=5
+strategy(
+     "Fair value gap [BETA] @tradingmaestro12", 
+     initial_capital=100,
+     commission_type=strategy.commission.percent,
+     commission_value=0.055,
+     slippage=3,
+     default_qty_type=strategy.percent_of_equity,
+     default_qty_value=100,
+    //  margin_long=100, 
+    //  margin_short=100,
+     overlay=true
+     )
+
+// ============ CONSTANTS =============
+
+long    = "Long"
+short   = "Short"
+
+
+// ============ INPUTS ================
+
+direction       = input.string('Both', options=['Both', long, short], group='Strategy')
+TakeProfitBool  = input.bool(true, inline = '1')
+TakeProfitInput = input.float(5.0, "Take profit %", step=0.1)
+StopLossInput   = input.float(3.0, "Stop loss %", step=0.1)
+plotOrders      = input.bool(true)
+
+// TODO:: multiple tp & sp
+
+
+// ============ FUNCTIONS =============
+plotOrder (direction) =>
+    left = bar_index + 1
+    width = 5
+
+    line.new(left, close, left + width, close, color = color.new(#787b86, 0))
+
+    if direction == long
+        box.new(left, close * (TakeProfitInput / 100 + 1), left + width, close, border_color=na, text = "price: " + str.tostring(close), text_color = color.white, text_size = size.normal, text_valign = text.align_bottom, bgcolor = color.new(#089981, 80))
+        box.new(left, close, left + width, close * (1 - (StopLossInput / 100)), border_color=na,  bgcolor = color.new(#f23645, 80))
+    if direction == short
+        box.new(left, close, left + width, close * (StopLossInput / 100 + 1), border_color=na,  bgcolor = color.new(#f23645, 80))
+        box.new(left, close * (1 - (TakeProfitInput / 100)), left + width, close, border_color=na, text = "price: " + str.tostring(close), text_color = color.white, text_size = size.normal, text_valign = text.align_bottom, bgcolor = color.new(#089981, 80))
+
+// ============ LOGICA =============
+
+// bull_fvg = high[3] <= open[2] and high[2] <= open[1]
+// bear_fvg = close[3] >= high[2] and close[2] >= high[1]
+
+// atr measures volatility
+atr = ta.atr(14)
+plot(atr)
+// TODO:: SL percentage should be measured with atr
+
+threshold = ta.cum((high - low) / low) / bar_index
+bull_fvg = low > high[2] and close[1] > high[2] and (low - high[2]) / high[2] > threshold
+bear_fvg = high < low[2] and close[1] < low[2] and (low[2] - high) / high > threshold
+
+takeProfitLong = strategy.position_avg_price * (TakeProfitInput / 100 + 1)
+stopLossLong = strategy.position_avg_price * (1 - (StopLossInput / 100))
+
+takeProfitShort = strategy.position_avg_price * (1 - (TakeProfitInput / 100))
+stopLossShort = strategy.position_avg_price * (StopLossInput / 100 + 1)
+
+
+// ============ ORDERS =============
+
+
+if TakeProfitBool
+    strategy.exit(long, limit=takeProfitLong, stop=stopLossLong, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
+    strategy.exit(short, limit=takeProfitShort, stop=stopLossShort, comment_profit = "Short Take Profit", comment_loss = "Short Stop Loss")
+
+if bull_fvg and atr > 70
+    if direction != short
+        strategy.entry(long, strategy.long)
+    else
+        strategy.close_all()
+
+    if strategy.position_size <= 0 and plotOrders
+        plotOrder(long)
+
+else if bear_fvg and atr > 70
+    if direction != long
+        strategy.entry(short, strategy.short)
+    else
+        strategy.close_all()
+    
+    if strategy.position_size >= 0 and plotOrders
+        plotOrder(short)

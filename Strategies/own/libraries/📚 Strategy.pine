@@ -1,0 +1,15 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+
+//@version=5
+
+library("Strategy", overlay = true)
+
+export isAllowedTradingDay (bool mo, bool tu, bool we, bool th, bool fr, bool sa, bool su) =>
+	dayofweek(time) == dayofweek.monday and mo or
+	 dayofweek(time) == dayofweek.tuesday and tu or
+	 dayofweek(time) == dayofweek.wednesday and we or
+	 dayofweek(time) == dayofweek.thursday and th or
+	 dayofweek(time) == dayofweek.friday and fr or
+	 dayofweek(time) == dayofweek.saturday and sa or
+	 dayofweek(time) == dayofweek.sunday and su

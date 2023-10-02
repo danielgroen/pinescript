@@ -1,0 +1,91 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © tradingmaestro12
+
+//@version=5
+
+// @description Tables library
+import tradingmaestro12/variables/1 as variables
+library("Tables", overlay = true)
+
+colors = variables.colorConstructor.new()
+
+colorRangeBackground (float value, float negative = -0.01, float positive = 0.01) =>
+	if value > negative and value < positive
+		colors.table_value
+	else if value <= negative
+		colors.red
+	else if value >= positive
+		colors.green
+
+insertRow (table, val1, val2, rowIndex, rowType = 'row', color background = na) => 
+	textAlignmentLabel = rowType == 'row' ? text.align_left : text.align_center
+	textAlignmentValue = rowType == 'row' ? text.align_right : text.align_center
+	int opacity = 60
+
+	color valueBg = colors.table_label
+	if rowType == 'row'
+		if not na(background)
+			valueBg := background
+		else 
+			valueBg := colors.table_value
+
+
+	color tableColor = color.white
+	int cellIndex = 0
+
+	table.cell(table, cellIndex, rowIndex, " " + val1 + "    " , text_color=tableColor, text_halign=textAlignmentLabel, bgcolor=color.new(colors.table_label, opacity))
+	cellIndex := 1
+	table.cell(table, cellIndex, rowIndex, "    " + val2 + " ", text_color=tableColor, text_halign=textAlignmentValue, bgcolor=color.new(valueBg, opacity))
+
+// @function StrategyMetrics
+// @returns table table
+export StrategyMetrics () =>
+	var series int firstTradeDate = na
+	var isCreated = false
+
+	currentDate = timestamp(year, month, dayofmonth)
+	var float diffInDays = na
+
+	if strategy.position_size == 0
+		firstTradeDate := time
+
+	// its not updating atm
+	if barstate.islastconfirmedhistory or barstate.isrealtime and not isCreated
+		var int rowIndex = 0
+		int tableRows = 8
+
+		table = table.new(position = position.top_right, columns=2, rows=tableRows, border_width = 2)
+		insertRow(table, "Backtester", "", rowIndex, 'header'), rowIndex := rowIndex + 1
+
+		win_percentage = strategy.wintrades ? math.round((strategy.wintrades / (strategy.wintrades + strategy.losstrades)), 2) * 100 : 0
+		insertRow(table, "Win rate", str.tostring(win_percentage) + "%", rowIndex, background=colorRangeBackground(win_percentage, 49, 50)), rowIndex := rowIndex + 1
+
+		insertRow(table, "Wins / Losses", str.tostring(strategy.wintrades) + " / " + str.tostring(strategy.losstrades), rowIndex), rowIndex := rowIndex + 1
+		insertRow(table, "Total orders", str.tostring(strategy.closedtrades), rowIndex), rowIndex := rowIndex + 1
+
+		diffInDays := math.round((timenow - firstTradeDate) / (1000 * 60 * 60 * 24))
+		profitInPercentage = strategy.netprofit / strategy.initial_capital * 100
+		percentPerDay = math.round((profitInPercentage / diffInDays), 2)
+		insertRow(table, "% Per day", str.tostring(percentPerDay) + "%", rowIndex), rowIndex := rowIndex + 1
+
+		insertRow(table, "Current equity", str.tostring(math.round(strategy.equity, 2)), rowIndex)
+		
+		inTrade = strategy.position_size != 0 ? str.tostring(math.round(strategy.openprofit, 2)) : "Closed"
+		curTradeBg = strategy.position_size != 0 ? colorRangeBackground(strategy.openprofit) : na
+		insertRow(table, "Current trade", inTrade, rowIndex, background=curTradeBg)
+		isCreated := true
+		// Calmar ratio? https://en.wikipedia.org/wiki/Calmar_ratio
+// plotStrategyTable()
+
+// @function Debug: plotting a simple table for debuggin purpouses
+// @param float value
+// @returns table table
+export Debug (float value) =>
+	var isCreated = false
+
+	if barstate.islastconfirmedhistory or barstate.isrealtime and not isCreated
+		table = table.new(position = position.bottom_right, columns=1, rows=2, border_width = 2)
+		table.cell(table, 0, 0, "Debug value:", text_color=color.white, bgcolor=color.rgb(84, 85, 90))
+		table.cell(table, 0, 1, str.tostring(value), text_color=color.white, bgcolor=color.gray)
+		isCreated := false
+// plotdebugTable(2)
