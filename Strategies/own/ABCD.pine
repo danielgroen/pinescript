@@ -4,14 +4,10 @@
 //@version=5
 
 // TODO::
-// - roundings
-// - Flat grid exclusion
 // - Plot long/short orders
-// - Backtest table
-// -
-// -
+// - exit logica
 
-import tradingmaestro12/MyLibrary/4 as lib
+import tradingmaestro12/MyLibrary/12 as lib
 
 strategy('ABCD Patterns [BETA] @tradingmaestro12', 
 	 initial_capital=100,
@@ -192,7 +188,7 @@ bgcolor(isPlotTradingWindow and isDisableFlatGridOrders and flatMarket and inTra
 // TABLE
 canPlotTable = input.bool(true, title = "Plot table", group = performanceLabel)
 if canPlotTable
-	lib.tableStrat()
+	lib.plotStrategyTable()
 
 
 
@@ -202,9 +198,8 @@ if canPlotTable
 notes = input.text_area(title = "notes", defval = '')
 
 // DEBUGGING LABELS
-// label.new(x=bar_index, y=high, text=str.tostring(precisionNumber), yloc=yloc.belowbar, color=color.new(color.red,100), style=label.style_label_down, textcolor=color.white)
+val = strategy.openprofit
+lib.plotdebugTable(4)
 
-var int losingOrders = 0
-var int winningOrders = 0
-var int totalOrders = 0
 
+// DEBUALKSDJF LKASJDF KLKASJLDKF KLASD JFKLAS DFJSAJD FLKAS DF
