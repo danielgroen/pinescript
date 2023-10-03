@@ -5,6 +5,15 @@
 
 library("Strategy", overlay = true)
 
+// @function
+// @param bool mo
+// @param bool tu
+// @param bool we
+// @param bool th
+// @param bool fr
+// @param bool sa
+// @param bool su
+// @return bool
 export isAllowedTradingDay (bool mo, bool tu, bool we, bool th, bool fr, bool sa, bool su) =>
 	dayofweek(time) == dayofweek.monday and mo or
 	 dayofweek(time) == dayofweek.tuesday and tu or
@@ -13,3 +22,37 @@ export isAllowedTradingDay (bool mo, bool tu, bool we, bool th, bool fr, bool sa
 	 dayofweek(time) == dayofweek.friday and fr or
 	 dayofweek(time) == dayofweek.saturday and sa or
 	 dayofweek(time) == dayofweek.sunday and su
+
+
+// @function
+// @param string long
+// @param bool short
+// @param TODO.....
+// @return bool
+export exitStrat (
+	 string long, 
+	 string short,
+
+	 bool takeProfitBool,
+	 bool stopLossBool,
+
+	//  float takeRR,
+
+	//  float stopATR,
+	//  float takeATR
+
+	 float stopPer,
+	 float takePer
+
+	 ) =>
+	// Fixed percentage
+	longStop = strategy.position_avg_price * (1 - stopPer)
+	shortStop = strategy.position_avg_price * (1 + stopPer)
+	shortTake = strategy.position_avg_price * (1 - takePer)
+	longTake = strategy.position_avg_price * (1 + takePer)
+
+	if takeProfitBool or stopLossBool
+		if strategy.position_size > 0 
+			strategy.exit(id="Close Long", from_entry=long, stop=longStop, limit=longTake, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
+		if strategy.position_size < 0 
+			strategy.exit(id="Close Short", from_entry=short, stop=shortStop, limit=shortTake, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
