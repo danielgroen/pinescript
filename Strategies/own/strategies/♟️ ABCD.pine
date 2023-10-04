@@ -26,6 +26,7 @@ strategy('ABCD Patterns [BETA] @tradingmaestro12',
 // VARIABLES ####
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
+var Variables.ColorConstructor Colors = Variables.ColorConstructor.new()
 
 var string long 			= "Long"
 var string short 			= "Short"
@@ -33,59 +34,60 @@ var string both 			= "Both"
 
 var bool longCondition 		= na
 var bool shortCondition 	= na
-var float positionSize	 	= (strategy.initial_capital + strategy.netprofit) / close
+var float position_size	 	= (strategy.initial_capital + strategy.netprofit) / close
 
+var float price_entry		= na
 var float price_stoploss 	= na
 var float price_takeprofit 	= na
 
-var Colors = Variables.ColorConstructor.new()
 
 // INPUTS
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-var label_global = "🌐 Global settings"
-var bool precisionBool 				= input.bool(defval= false, title="Override precision with:", inline="precision", group=label_global)
-var float precisionNumber 			= input.float(defval= 0, title="", tooltip="Used to round orders. The minimum contract for BTC is 0.001. If so, fill in here: 0.001", inline="precision", group=label_global)
-var int atrVal 						= input.int(14, 'ATR', group=label_global)
+var string	label_global 				= "⚙️  Global settings"
+var bool 	precision_bool 				= input.bool(defval= false, title="Override precision with:", inline="precision", group=label_global)
+var float 	precision_number 			= input.float(defval= 0.001, title="", tooltip="Used to round orders. The minimum contract for BTC is 0.001. If so, fill in here: 0.001", inline="precision", group=label_global)
+// var int 	atr_val 					= input.int(14, 'ATR', group=label_global)
 
-var string label_market_conditions 	= "⚙️ Market conditions"
-var string direction 				= input.string(both, "Strategy Direction", options=[long, short, both], group=label_market_conditions)
-var bool isDisableFlatGridOrders 	= input.bool(false, title="Disable flat market entries", group=label_market_conditions)
+var string 	label_market_conditions 	= "🎪  Market conditions"
+var string 	direction 					= input.string(both, "Strategy Direction", options=[long, short, both], group=label_market_conditions)
+var bool 	is_disable_flatgrid_orders 	= input.bool(false, title="Disable flat market entries", group=label_market_conditions)
 
-var string label_performance 		= '🚀 Performance'
-var bool isPlotTradingWindow 		= input.bool(true, 'Session', inline="Performance_plot", group=label_performance )
-var bool isPlotLogica 				= input.bool(true, 'Logica', inline="Performance_plot", group=label_performance)
-var bool canPlotTable 				= input.bool(true, title="Table", inline="Performance_plot", group=label_performance)
+var string 	label_performance 			= '🚀  Performance'
+var bool 	can_plot_sessions 			= input.bool(true, 'Session', inline="Performance_plot", group=label_performance)
+var bool 	can_plot_logica 			= input.bool(true, 'Logica', inline="Performance_plot", group=label_performance)
+var bool 	can_plot_tables 			= input.bool(true, title="Table", inline="Performance_plot", group=label_performance)
+var bool 	can_plot_orders 			= input.bool(true, title="Orders", inline="Performance_plot", group=label_performance)
 
-var string label_stoploss 	= "🛟 Stoploss"
-var bool stopLossBool 		= input.bool(defval= false, title="Stoploss condition:", inline="StopLoss", group=label_stoploss)
-var string stopLossType 	= input.string("%", options=["%", "ATR"], title="", tooltip="", inline="StopLoss", group=label_stoploss)
-var float stopPer 			= input.float(5.0, title='⎿ %', inline="stoplossVal", group=label_stoploss) / 100
-var float stopATR 			= input.float(5.0, title='ATR', inline="stoplossVal", group=label_stoploss) // fixme
+var string 	label_stoploss 				= "🛟  Stoploss"
+var bool 	stoploss_bool 				= input.bool(defval= false, title="Stoploss condition:", inline="StopLoss", group=label_stoploss)
+// var string 	stoploss_type	 			= input.string("%", options=["%", "ATR"], title="", tooltip="", inline="StopLoss", group=label_stoploss)
+var float 	stop_percentage 			= input.float(5.0, title='⎿ %', inline="stoplossVal", group=label_stoploss) / 100
+// var float 	stop_atr 					= input.float(5.0, title='ATR', inline="stoplossVal", group=label_stoploss)
 
-var string label_takeprofit = "🎯 Take profit"
-var bool takeProfitBool 	= input.bool(defval= false, title="Take profit condition:", inline="takeProfit", group=label_takeprofit)
-var string takeProfitType 	= input.string("%", options=["%", "ATR", "R:R"], title="", inline="takeProfit", group=label_takeprofit)
-var float takePer 			= input.float(10.0, title='⎿ %', inline="takeProfitVal", group=label_takeprofit) / 100
+var string 	label_takeprofit 			= "🎯  Take profit"
+var bool 	takeprofit_bool 			= input.bool(defval= false, title="Take profit condition:", inline="takeProfit", group=label_takeprofit)
+// var string 	takeprofit_type				= input.string("%", options=["%", "ATR", "R:R"], title="", inline="takeProfit", group=label_takeprofit)
+var float 	takeprofit_percentage		= input.float(10.0, title='⎿ %', inline="takeProfitVal", group=label_takeprofit) / 100
 
-var float takeATR = input.float(5.0, title=' ATR', inline="takeProfitVal", group=label_takeprofit) // fixme
-var float takeRR = input.float(5.0, title=' R:R', inline="takeProfitVal", group=label_takeprofit) // fixme
+// var float 	takeprofit_atr				= input.float(5.0, title=' ATR', inline="takeProfitVal", group=label_takeprofit)
+// var float 	takeprofit_rr				= input.float(5.0, title=' R:R', inline="takeProfitVal", group=label_takeprofit)
 
-var string label_strategy 	= "Strategy settings"
-var bool uselessParam1 		= input.bool(display=display.none, defval= false, title="========== ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇ ==========", group=label_strategy)
+var string 	label_strategy 				= "Strategy settings"
+var bool 	useless_1	 				= input.bool(display=display.none, defval= false, title="========== ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇ ==========", group=label_strategy)
 
 
-var string label_session 	= '📅 Session times'
-var bool mo 				= input.bool(true, 'M', inline='isTradingDay', group=label_session)
-var bool tu 				= input.bool(true, 'T', inline='isTradingDay', group=label_session)
-var bool we 				= input.bool(true, 'W', inline='isTradingDay', group=label_session)
-var bool th 				= input.bool(true, 'T', inline='isTradingDay', group=label_session)
-var bool fr 				= input.bool(true, 'F', inline='isTradingDay', group=label_session)
-var bool sa 				= input.bool(true, 'S', inline='isTradingDay', group=label_session)
-var bool su 				= input.bool(true, 'S', inline='isTradingDay', group=label_session)
+var string label_session 				= '📅  Session times'
+var bool 	mo 							= input.bool(true, 'M', inline='isTradingDay', group=label_session)
+var bool 	tu 							= input.bool(true, 'T', inline='isTradingDay', group=label_session)
+var bool 	we 							= input.bool(true, 'W', inline='isTradingDay', group=label_session)
+var bool 	th 							= input.bool(true, 'T', inline='isTradingDay', group=label_session)
+var bool 	fr 							= input.bool(true, 'F', inline='isTradingDay', group=label_session)
+var bool 	sa 							= input.bool(true, 'S', inline='isTradingDay', group=label_session)
+var bool 	su 							= input.bool(true, 'S', inline='isTradingDay', group=label_session)
 
-var bool is_live_mode 		= input.bool(false, title="Enable live mode from:", inline='liveMode', group=label_session)
-var int targetDate 			= input.time(timestamp('2023, 10, 06'), title="", inline='liveMode', group=label_session)
+var bool 	is_live_mode 				= input.bool(false, title="Enable live mode from:", inline='liveMode', group=label_session)
+var int 	target_date 				= input.time(timestamp('2023, 10, 06'), title="", inline='liveMode', group=label_session)
 
 // var string notes = input.text_area(title="notes", defval = '')
 
@@ -97,7 +99,7 @@ var int targetDate 			= input.time(timestamp('2023, 10, 06'), title="", inline='
 // #########
 // COND 1
 
-var length = input.int(5, title="ABCD Length", group = label_strategy)
+var length = input.int(5, title="ABCD Length", group=label_strategy)
 up1 = ta.pivothigh(high, length, length)
 dn1 = ta.pivotlow(low, length, length)
 upcount = ta.barssince(not na(up1))
@@ -121,9 +123,9 @@ ABCD_bear1 = high - cv >= bv - av and ABCD_bear
 shortCondition := ABCD_bear1 and not ABCD_bear1[1]
 
 // PLOTS
-plotPpp = isPlotLogica and bool(ppp) ? ppp : na
-plotUp = isPlotLogica and not na(up1) and dncount[1] < upcount[1] ? up1 : na
-plotDn = isPlotLogica and not na(dn1) and dncount[1] > upcount[1] ? dn1 : na
+plotPpp = can_plot_logica and bool(ppp) ? ppp : na
+plotUp = can_plot_logica and not na(up1) and dncount[1] < upcount[1] ? up1 : na
+plotDn = can_plot_logica and not na(dn1) and dncount[1] > upcount[1] ? dn1 : na
 
 plot(plotUp, title='pivot high', offset=-length)
 plot(plotDn, title='pivot low', offset=-length)
@@ -133,40 +135,40 @@ plot(plotPpp, title='pivot line', offset=-length)
 // ENTRY ORDERS
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-var bool uselessParam2 = input.bool(display=display.none, defval= false, title="========== ⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆ ==========", group=label_strategy)
+var bool useless_2 = input.bool(display=display.none, defval= false, title="========== ⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆ ==========", group=label_strategy)
 
-if precisionBool
-	if positionSize < precisionNumber
-		positionSize := precisionNumber
+if precision_bool
+	if position_size < precision_number
+		position_size := precision_number
 
-if not isDisableFlatGridOrders or isDisableFlatGridOrders and not Strat.is_flat_market()
-	if Strat.is_active_session(is_live_mode, targetDate) and Strat.is_allowed_day_in_week(mo, tu, we, th, fr, sa, su)
+if not is_disable_flatgrid_orders or is_disable_flatgrid_orders and not Strat.is_flat_market()
+	if Strat.is_active_session(is_live_mode, target_date) and Strat.is_allowed_day_in_week(mo, tu, we, th, fr, sa, su)
 
 		if shortCondition
-			strategy.entry(short, strategy.short, qty=positionSize)
+			strategy.entry(short, strategy.short, qty=position_size)
 
 		if longCondition
-			strategy.entry(long, strategy.long, qty=positionSize)
+			strategy.entry(long, strategy.long, qty=position_size)
 
 
 
 // EXIT  ORDERS
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-if takeProfitBool or stopLossBool
+if takeprofit_bool or stoploss_bool
 	if Strat.in_long_position()
-		longStop = strategy.position_avg_price * (1 - stopPer)
-		longTake = strategy.position_avg_price * (1 + takePer)
-		price_stoploss := longStop
-		price_takeprofit := longTake
-		strategy.exit(id="Close Long", from_entry=long, stop=longStop, limit=longTake, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
+		long_stoploss = strategy.position_avg_price * (1 - stop_percentage)
+		long_takeprofit = strategy.position_avg_price * (1 + takeprofit_percentage)
+		price_stoploss := long_stoploss
+		price_takeprofit := long_takeprofit
+		strategy.exit(id="Close Long", from_entry=long, stop=long_stoploss, limit=long_takeprofit, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
 
 	if Strat.in_short_position() 
-		shortStop = strategy.position_avg_price * (1 + stopPer)
-		shortTake = strategy.position_avg_price * (1 - takePer)
-		price_stoploss := shortStop
-		price_takeprofit := shortTake
-		strategy.exit(id="Close Short", from_entry=short, stop=shortStop, limit=shortTake, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
+		short_stoploss = strategy.position_avg_price * (1 + stop_percentage)
+		short_takeprofit = strategy.position_avg_price * (1 - takeprofit_percentage)
+		price_stoploss := short_stoploss
+		price_takeprofit := short_takeprofit
+		strategy.exit(id="Close Short", from_entry=short, stop=short_stoploss, limit=short_takeprofit, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
 
 
 
@@ -174,25 +176,33 @@ if takeProfitBool or stopLossBool
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 // ACTIVE SESSIONS
-bgcolor(not Strat.is_allowed_day_in_week(mo, tu, we, th, fr, sa, su) and isPlotTradingWindow or not Strat.is_active_session(is_live_mode, targetDate) ? color.new(Colors.red, 80) : na)
-bgcolor(isPlotTradingWindow and isDisableFlatGridOrders and Strat.is_flat_market() and Strat.is_active_session(is_live_mode, targetDate) ? color.new(Colors.red, 80) : na)
+bgcolor(not Strat.is_allowed_day_in_week(mo, tu, we, th, fr, sa, su) and can_plot_sessions or not Strat.is_active_session(is_live_mode, target_date) ? color.new(Colors.red, 80) : na)
+bgcolor(can_plot_sessions and is_disable_flatgrid_orders and Strat.is_flat_market() and Strat.is_active_session(is_live_mode, target_date) ? color.new(Colors.red, 80) : na)
 
 // ORDERS
-var float entry = na
-
-if Strat.in_position()
-    entry := strategy.position_avg_price
-
-tp = plot(Strat.in_long_position() or Strat.in_short_position() ? price_takeprofit : na, 'Take', color=Colors.green, style=plot.style_linebr, editable=false)
-sl = plot(Strat.in_long_position() or Strat.in_short_position() ? price_stoploss : na, 'Stop', color=Colors.red, style=plot.style_linebr, editable=false)
-en = plot(Strat.in_long_position() or Strat.in_short_position() ? (Strat.in_long_position() and price_stoploss > entry or Strat.in_short_position() and price_stoploss < entry ? price_stoploss : entry) : Strat.in_long_position() or Strat.in_short_position() ? close : na, 'Price', color=stopLossBool ? #b3b4ba : na, style=plot.style_linebr)
+price_entry := Strat.in_position() ? strategy.position_avg_price : na
+tp = plot(can_plot_orders and Strat.in_position() ? price_takeprofit : na, 'Take', color=Colors.green, style=plot.style_linebr, editable=false)
+sl = plot(can_plot_orders and Strat.in_position() ? price_stoploss : na, 'Stop', color=Colors.red, style=plot.style_linebr, editable=false)
+en = plot(can_plot_orders and Strat.in_position() ? (can_plot_orders and Strat.in_long_position() and price_stoploss > price_entry or Strat.in_short_position() and price_stoploss < price_entry ? price_stoploss : price_entry) : can_plot_orders and Strat.in_long_position() or Strat.in_short_position() ? close : na, 'Price', color=stoploss_bool ? color.new(color.white, 50) : na, style=plot.style_linebr)
 fill(tp, en, color=color.new(Colors.green, 90), editable=false)
 fill(sl, en, color=color.new(Colors.red, 90), editable=false)
 
 // TABLES
-if canPlotTable
+if can_plot_tables
 	Table.StrategyMetrics()
 
+
+
 // DEBUG
-// if canPlotTable
-// 	Table.Debug(lastExit)
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+// this way we can override global variables inside functions!
+var jo = 1
+
+updateNumber(jo) =>
+	jo + 1
+
+jo := updateNumber(jo)
+
+if can_plot_tables
+	Table.Debug(jo)
