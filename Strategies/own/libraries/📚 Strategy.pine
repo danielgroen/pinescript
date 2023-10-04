@@ -5,7 +5,14 @@
 
 library("Strategy", overlay = true)
 
-// @function
+
+
+// SESSION TIMES
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+
+
+// @function is_allowed_day_in_week
 // @param bool mo
 // @param bool tu
 // @param bool we
@@ -14,7 +21,7 @@ library("Strategy", overlay = true)
 // @param bool sa
 // @param bool su
 // @return bool
-export isAllowedTradingDay (bool mo, bool tu, bool we, bool th, bool fr, bool sa, bool su) =>
+export is_allowed_day_in_week (bool mo, bool tu, bool we, bool th, bool fr, bool sa, bool su) =>
 	dayofweek(time) == dayofweek.monday and mo or
 	 dayofweek(time) == dayofweek.tuesday and tu or
 	 dayofweek(time) == dayofweek.wednesday and we or
@@ -24,35 +31,45 @@ export isAllowedTradingDay (bool mo, bool tu, bool we, bool th, bool fr, bool sa
 	 dayofweek(time) == dayofweek.sunday and su
 
 
-// @function
-// @param string long
-// @param bool short
-// @param TODO.....
+
+// @function is_active_session
+// @param bool is_live_mode
+// @param int target_date
 // @return bool
-export exitStrat (
-	 string long, 
-	 string short,
+export is_active_session (bool is_live_mode, int target_date ) =>
+	is_live_mode == false or time > target_date
 
-	 bool takeProfitBool,
-	 bool stopLossBool,
 
-	//  float takeRR,
 
-	//  float stopATR,
-	//  float takeATR
+// @function is_flat_market
+// @param int avg_price
+// @param int percentage
+// @param series float bar_type
+// @return float
+export is_flat_market (int avg_price = 100, int percentage = 1, series float bar_type = close) =>
+	sma_avgPrice = ta.sma(bar_type, avg_price)
+	math.abs(bar_type - sma_avgPrice) <= (sma_avgPrice * percentage / 100)
 
-	 float stopPer,
-	 float takePer
+// ORDERS
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-	 ) =>
-	// Fixed percentage
-	longStop = strategy.position_avg_price * (1 - stopPer)
-	shortStop = strategy.position_avg_price * (1 + stopPer)
-	shortTake = strategy.position_avg_price * (1 - takePer)
-	longTake = strategy.position_avg_price * (1 + takePer)
 
-	if takeProfitBool or stopLossBool
-		if strategy.position_size > 0 
-			strategy.exit(id="Close Long", from_entry=long, stop=longStop, limit=longTake, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
-		if strategy.position_size < 0 
-			strategy.exit(id="Close Short", from_entry=short, stop=shortStop, limit=shortTake, qty_percent = 100, comment_profit = "Long Take Profit", comment_loss = "Long Stop Loss")
+
+// @function in_long_position
+// @return bool
+export in_long_position () =>
+	strategy.position_size > 0 
+
+
+
+// @function in_long_position
+// @return bool
+export in_short_position () =>
+	strategy.position_size < 0
+
+
+
+// @function in_position
+// @return bool
+export in_position () =>
+	in_long_position() or in_short_position()
