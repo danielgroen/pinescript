@@ -1,0 +1,42 @@
+//@author impressive_Snow
+//@version=5
+
+strategy(
+	 title='[TEST] Long / sell everyminute | webhook test', 
+	 overlay=true, 
+	 initial_capital=100,
+	 default_qty_type=strategy.percent_of_equity, 
+     default_qty_value=100,
+	 commission_value=0.055
+	 )
+
+// ---INPUTS---
+toTest     =   input.string("long/short", "what are you testing", options= ['long/short', 'order', 'exitAll'])
+// ------------
+
+hasPosition = strategy.position_size != 0
+intervalInMinutes =  1
+
+even = barstate.isrealtime and minute(time) % (intervalInMinutes + intervalInMinutes) < intervalInMinutes
+uneven = barstate.isrealtime and minute(time) % (intervalInMinutes + intervalInMinutes) >= intervalInMinutes
+
+// ---ORDERS---
+if even
+    if toTest == "long/short"
+        strategy.entry('Long', strategy.long)
+
+    if toTest == "order"
+        strategy.order('Long', strategy.long)
+
+        if hasPosition
+            // strategy.exit("Exit Short", from_entry="Long", limit=low * 0.90)
+            // strategy.close("Exit", "Long")
+            strategy.close_all()
+
+if uneven
+    if toTest == "long/short"
+        strategy.entry('Short', strategy.short)
+
+    if toTest == "order"
+        strategy.order('Long', strategy.long)
+// ------------
