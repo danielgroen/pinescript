@@ -1,0 +1,46 @@
+Name,Value
+"__indicatorName","3C QFL v3.1"
+"Chart theme","dark"
+"From",false
+"To ",false
+"Session Days",false
+"Mon",true
+"Tue",true
+"Wed",true
+"Thu",true
+"Fri",true
+"Sat",true
+"Sun",true
+"Session Start",false
+":",0
+"Session End",false
+"Enable Bot Control Via Webhook",false
+"Bot id",
+"Deal start",true
+"Safety Orders SPOT ONLY",true
+"Take profit deal stop",true
+"Stop Loss",true
+"Strategy Type","long"
+"QFL timeframe","Chart"
+"QFL volume MA",22
+"Max candle age",71
+"Allow consecutive signals",true
+"Plot bases",true
+"Take Profit Type","% From total volume"
+"Take Profit (%)",1.7
+"Base order size",20
+"Safety order size",40
+"QFL percentage to buy",0.6
+"Price Deviation To Open Safety Trades (%)",0.5
+"Safety Order Volume Scale",2
+"Safety Order Step Scale",2
+"Max Safety Trades Count",4
+"Enable Stop Loss",false
+"Stop Loss (%)",20
+"FEE (%)",0.055
+"Decimals For Display",2
+"Show PnL Labels",true
+"Show Table With Statistics",true
+"Show Table With Strategy Settings",false
+"Show Table With Steps Similar To 3commas",false
+"BO Entry Price For Steps Table",0

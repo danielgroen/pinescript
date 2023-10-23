@@ -1,0 +1,263 @@
+Name,Value
+"__indicatorName","THE DEAD ZONE [v5] by @DavidTech 🧠 by @DaviddTech 🤖"
+"Core Boilerplate Version","5.0.3 @ 0.0.1"
+"Visit Davidd.tech for More Info","www.davidd.tech"
+"Join our discord","discord.gg/daviddtech"
+"Join our telegram","t.me/DaviddTech"
+"Hide welcome message (READ TOOLTIP)",true
+"Optimiser MODE 🚀",false
+"Long Trades",true
+"Short Trades",true
+"Trade type","NORMAL"
+"Use Limit exit",true
+"Allow Reversal Trades",false
+"Close trade on reverse strategy",false
+"Wait for confirmation of new entry on reversal",false
+"Wait for isBarConfirmed?",true
+"Type of Take Profit","R:R"
+"Type of Stoploss","ATR"
+"Ignore Wicks -- Read Tooltip 🛟",false
+"Ignore Wicks Protection SL %",0.5
+"Stop Loss Long %",1.9
+"Take Profit Long %",2
+"Stop Loss Short %",1.9
+"Take Profit Short %",2
+"Stop Loss Long PIPS",100
+"Take Profit Long PIPS",200
+"Stop Loss Short PIPS",100
+"Take Profit Short PIPS",200
+"Indicator Source - SL L🟢","close"
+"Indicator Source - SL S🔴","close"
+"Highest High lookback",50
+"Lowest Low Lookback",60
+"Profit factor Long (Risk to Reward)",2
+"Profit factor Short (Risk to Reward)",2
+"Left Bars",9
+"Right Bars",1
+"ATR Multiplier For Stoploss",2.4
+"ATR Source","Source"
+"Source Upper ATR Stoploss","close"
+"Source Lower ATR Stoploss","close"
+"ATR Swing lookback",11
+"Use Trailing Stop",true
+"Trailing Stop Source","Close"
+"When to Activate Trailing?","After Hit TP 1"
+"Trigger Trailing Threshold % of Total TP",100
+"Use Trailing Take Profit",false
+"ATR Trailing Stop Multiplier",3
+"Round to the symbol's",true
+"Decimals points",3
+"Wait X Candles Between Entries",1
+"Set Max Candles in Trade",false
+"Max Candles",20
+"Set Max Total DrawDown",false
+"Max Drawdown (%)",20
+"Set Max Intraday Loss",false
+"Max Intraday Loss (%)",20
+"Set Max Consecutive Days with Losses",false
+"Max Consecutive Days with Losses",20
+"Percent or Fixed","Percent"
+"% of Portfolio",20
+"Leverage",1
+"Dynamic Leverage (READ TOOLTIP)",true
+"MAX",25
+"Wiggle",25
+"Risk",100
+"Show Liquadation line (BETA)",true
+"Block Trades if Liquadation is before SL (BETA)",true
+"Maintenance Margin Rate",0.5
+"Position Size (BETA)","Manual"
+"DA Source","ADX"
+"DA Multi 1",0.6
+"DA 2",0.9
+"DA 3",1.3
+"ℹ️ More information","https://youtu.be/4PB227Y_3CY"
+"Use Martingale?",false
+"Martingale Type","NORMAL"
+"Martingale Multipler",1.6
+"Use DCA.",false
+"Max no. of safe orders",5
+"Divide position by Max no. of safe orders",false
+"Safety order step scale 🛟",1.1
+"Safety order volume scale 🛟",1.1
+"Price deviation to open safety orders (%)",1
+"Activate Threshold Risk:Reward?",false
+"Threshold Risk:Reward",2
+"Activate Minimum TP %?",false
+"What if TP is too small ?","Use Percentage Instead"
+"Min Threshold TP %",0.3
+"Activate Max SL %",false
+"What if threshold SL breaks ?","Use Percentage Instead"
+"Threshold Max % SL",3.7
+"Close Position Early if Price Crosses MA?",false
+"MA Protection Type","EMA"
+"MA Protection Length",100
+"Indicator Source - Protection","close"
+"Move to Breakeven","OFF"
+"Trigger B.E %",3
+"Wiggle room to cover commision - B.E %",0
+"Take Multi Profit X3",true
+"TP1",true
+"% First TP",33
+"Level 1",30
+"TP2",true
+"% Second TP",33
+"Level 2",60
+"% Third TP",100
+"Level 3",60
+"ATR length",14
+"Use Moving Averages?","Off"
+"Inverse Moving Averages?",false
+"MA #1",true
+"MA Type #1","HMA"
+"MA Length #1",20
+"MA #2",true
+"MA Type #2","EMA"
+"MA Length #2",21
+"MA #3",false
+"MA Type #3","EMA"
+"MA Length #3",55
+"MA #4",false
+"MA Type #4","EMA"
+"MA Length #4",100
+"MA #5",true
+"MA Type #5","T3"
+"MA Length #5",300
+"HMA BAR",true
+"HMA Length",250
+"Enable Max Trades?",false
+"Max Trades Per Direction?",2
+"Force Exit On Exit Signal ?",false
+"============ MAIN STRATEGY SETTING START ============",true
+"Sensitivity",200
+"FastEMA Length",25
+"SlowEMA Length",150
+"BB Channel Length",20
+"BB Stdev Multiplier",2
+"Dead Multiplier",8.3
+"============ MAIN STRATEGY SETTING /END ============",true
+"▓▓▓ 🧠 AExternal Source Confluence 🧠 ▓▓▓",false
+"⚙️ First Indicator #1","close"
+"⚙️ Second Indicator #1 (Optional)","close"
+"⚙️ Fixed Level #1 L🟢",10
+"⚙️ Fixed Level #1 S🔴",10
+"🧠 Base L🟢 #1","close"
+"#1 L🟢 is:",">"
+"  └─> #1 This: L🟢","First Indicator"
+"🧠 Base S🔴 #1","close"
+"#1 S🔴 is:","<"
+"  └─> #1 This: S🔴","First Indicator"
+"FOMC",false
+"FOMCM",false
+"PPI",false
+"CPI",false
+"CSI",false
+"CCI",false
+"NFP",false
+"Close X MINUTES before event",10
+"Pause for X MINUTES after event",60
+"Use The Range Filter?",true
+"RF Period",100
+"RF Multi",3
+"Enable RSI (Big Extender) ?",false
+"RSI Strategy","Standard"
+"RSI Source","open"
+"RSI Length",18
+"RSI Overbrought",75
+"RSI Oversold",25
+"RSI MA","EMA"
+"MA Length - RSI",14
+"RSI Reverse",false
+"Enable Hurst exponent ?",false
+"Hurst Exp Length",25
+"Hurst Type","Trending Market"
+"Enable Hurst MTF ? 🚨",false
+"Hurst Timeframe (BETA)","Chart"
+"Enable ADX ?",true
+"ADX Type","MasaNakamura"
+"ADX Line Type","WMA"
+"ADX Smoothing",33
+"ADX Above line",34
+"ADX MA Length",150
+"Use DI for Direction ?",false
+"DI Length",20
+"Min stoch length",20
+"Max stoch length Smoothing",100
+"Stoch Smoothing",2
+"Inverse adaptive",false
+"Use Rate of Change?",false
+"Enable ADX MTF ? 🚨",false
+"ADX Timeframe (BETA)","Chart"
+"Enable HA Overlay ?",false
+"Volume confirm?",false
+"TDFI Lookback",20
+"Version to use?","v1"
+"Filter High",0.05
+"Filter Low",-0.05
+"MMA Length v2",13
+"MMA Mode v2","ema"
+"SMMA Mode v2","ema"
+"N Length v2",3
+"Enable MFI ?",false
+"MFI Source","ohlc4"
+"MFI Length",14
+"MFI Overbrought",51
+"MFI Oversold",49
+"Enable MFI MTF ? 🚨",false
+"MFI Timeframe (BETA)","Chart"
+"Enable Flat Market ?",false
+"MA Type Flat Market","VWMA"
+"MA Length Flat Market",100
+"Flat Market Above Line",30
+"Enable FM MTF ? 🚨",false
+"FM Timeframe (BETA)","Chart"
+"Use vWap / ema",false
+"VWap Source","high"
+"VWap2 Source","low"
+"Vwap Length",3
+"Enable Volume Flow ?",true
+"VFI length",150
+"Coef",0.6
+"Max. vol. cutoff",3.6
+"Enable Volume Flow MTF ? 🚨",false
+"VF Timeframe (BETA)","Chart"
+"Enable Bull Bear Power?",true
+"Custom Length for BBP",200
+"Enable BBP MTF ? 🚨",false
+"BBP Timeframe (BETA)","Chart"
+"Timezone","GMT+3"
+"Active Sessions & Week Days? (READ TOOLTIP)",true
+"Mon",true
+"Tue",true
+"Wed",true
+"Thur",true
+"Fri",true
+"Sat",false
+"Sun",false
+"Session Background Color",false
+"Allow Trades in Custom Session 1",true
+"Custom Session 2",true
+"Trade 24/7 (Normally for Crypto)",true
+"End of Session Close All Trades?",false
+"Session 1","03:00"
+"Session 2","08:00"
+"Use Date Filter for BackTeser (Active Above)",true
+"Alert Frequency","Once per bar"
+"Use Immediately?",true
+"LIVE TRADING 🏄",false
+"Use Simple Bot?",true
+"Use Saftey TP",false
+"Use Saftey SL",false
+"Show Entry/SL/TP",true
+"Desktop or Mobile","Auto"
+"Show Labels",true
+"Show trail trigger plotOfPrice",true
+"Full Dashboard 🐌",true
+"Trade",true
+"Indicators",true
+"Backtests",true
+"PnL 🐌",true
+"Watermark?",true
+"Log",false
+"Dark Mode | Bull | Bear | Notr",true
+"Notes"," "

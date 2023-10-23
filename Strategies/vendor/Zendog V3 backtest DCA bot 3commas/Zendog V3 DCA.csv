@@ -1,0 +1,45 @@
+Name,Value
+"__indicatorName","Zendog V3 DCA"
+"Chart theme","dark"
+"Deal start type","RSI-7"
+"Deal end type","Take Profit"
+"Safety order type","Percentage"
+"External indicator","close"
+"Deal start operator","="
+"Deal start value","-99 999"
+"Deal end operator","="
+"Deal end value","-99 999"
+"Safety order operator","="
+"Safety order value","-99 999"
+"RSI-7 Operation","<="
+"RSI-7 Value",39
+"Limit Date Range",false
+"Strategy Type","long"
+"Base order size",10
+"Safety order size",10
+"Take Profit Type","% From total volume"
+"Take Profit (%)",4
+"Enable Stop Loss",false
+"Stop Loss (%)",0
+"Max Safety Trades Count",8
+"Price Deviation To Open Safety Trades (%)",3
+"Safety Order Volume Scale",1.2
+"Safety Order Step Scale",1
+"PLAN-B Timeout",1
+"PLAN-B Action","none"
+"PLAN-B Close Deal (%)",0.5
+"Enable Bot Control Via Webhook",false
+"Bot id",
+"Deal start",true
+"Safety Orders",true
+"Take profit deal stop",true
+"External indicator deal stop",true
+"Stop Loss",true
+"PLAN-B",true
+"Commision (%)",0.055
+"Decimals For Display",2
+"Show PnL Labels",true
+"Show Table With Statistics",false
+"Show Table With Strategy Settings",false
+"Show Table With Steps Similar To 3commas",false
+"BO Entry Price For Steps Table",0

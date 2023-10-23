@@ -1,0 +1,11 @@
+Name,Value
+"__indicatorName","Fibonacci + RSI - Strategy"
+"Stop Loss (%)",10
+"[RSI] Length",13
+"[RSI] Over Sold %",23
+"[RSI] Over Bought %",0
+"[Fibonacci] Length",99
+"[Fibonacci] Source","hl2"
+"[Fibonacci] Multiplier",1
+"[Fibonacci] Level",305
+"Enable live mode and stop backtesting",false

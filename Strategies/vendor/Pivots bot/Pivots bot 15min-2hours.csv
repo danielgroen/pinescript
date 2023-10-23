@@ -1,0 +1,24 @@
+Name,Value
+"__indicatorName","Pivots bot 15min-2hours"
+"Strategy Direction","short"
+"HigherTF","30 minutes"
+"Factor",2.5
+"Tf",1440
+"Display info panels?",false
+"Fibs label offset",5
+"Fibs label size","normal"
+"Min",60
+"Tf3","1 month"
+"Min1",60
+"Buy Loss Long",false
+"Stop Loss %",15
+"Lot Risk Percent",100
+"Leverage",1
+"Stop loss",15
+"Qty_percent1",5
+"Qty_percent2",10
+"Qty_percent3",25
+"Take profit1",15
+"Take profit2",25
+"Take profit3",30
+"Take profit4",30

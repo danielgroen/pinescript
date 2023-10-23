@@ -1,0 +1,37 @@
+Name,Value
+"__indicatorName","Super 8 - 30M BTC"
+"Long / Short","Both"
+"Slow EMA Length",1498
+"Fast EMA Length",100
+"ADX Length",49
+"ADX Smoothing",9
+"ADX Threshold",39
+"SAR star",0.16
+"SAR inc",0.08
+"SAR max",0.8
+"MACD OPTION","MACD"
+"MACD Fast MA Length",46
+"MACD Slow MA Length",107
+"MACD Signal Length",39
+"Z-VWAP Length",13
+"StDev Length",11
+"MAC-Z constant A",0.05
+"MAC-Z constant B",0
+"Volume Factor",1.1
+"SMA Volume Length",109
+"BB Length",108
+"BB Multiplier",1
+"Min. BB Width % (New Position)",5
+"Min. BB Width % (Pyramiding)",4
+"Take Profit Option","Normal"
+"Take Profit %",2.9
+"Trail offset %",0.3
+"Donchian Channel Period",34
+"Stop Loss Option","Both"
+"Stop Loss %",10
+"ATR Period",9
+"ATR Multiplier",32.875
+"Max. Risk %",14
+"Max. Pyramiding",2
+"Step Entry Mode","Normal"
+"Min. Better Price %",0.775
