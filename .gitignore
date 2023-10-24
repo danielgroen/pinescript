@@ -1,2 +1,8 @@
+# Exclude
 **/_Archive/*
-!**/_Archive/*.{zip,tar.gz,tar.bz2,tar}
+
+# Include
+!**/_Archive/*.zip
+!**/_Archive/*.tar.gz
+!**/_Archive/*.tar.bz2
+!**/_Archive/*.tar
