@@ -7,10 +7,13 @@
 https://www.tradingview.com/v/VpQop3tN/
 
 ## Timeframe:
+15MIN
 
 ## Symbol:
+BTCUSDT
 
 ## Broker:
 BYBIT
 
 ## Since:
+18 SEPTEMBER 2023

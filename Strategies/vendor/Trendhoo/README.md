@@ -7,9 +7,13 @@
 https://www.tradingview.com/v/O5oEe5je/
 
 ## Timeframe:
+15MIN
 
 ## Symbol:
+ETHUSDT
 
 ## Broker:
+BYBIT
 
 ## Since:
+5 OCTOBER 2023

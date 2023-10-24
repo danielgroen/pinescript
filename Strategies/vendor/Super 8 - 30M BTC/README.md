@@ -7,9 +7,10 @@
 15M
 
 ## Symbol:
-LTCUSDT
+XRPUSDT
 
 ## Broker:
 BYBIT
 
 ## Since:
+31 AUGUST 2023

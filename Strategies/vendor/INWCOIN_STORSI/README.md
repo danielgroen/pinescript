@@ -7,10 +7,13 @@
 https://www.tradingview.com/v/jkg6wSxO/
 
 ## Timeframe:
+15MIN
 
 ## Symbol:
+ADA
 
 ## Broker:
 BYBIT
 
 ## Since:
+19 SEPTEMBER

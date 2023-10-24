@@ -7,9 +7,10 @@
 15M
 
 ## Symbol:
-LTCUSDT
+DOGEUSDT
 
 ## Broker:
 BYBIT
 
 ## Since:
+19 SEPTEMBER 2023

@@ -7,9 +7,10 @@
 15M
 
 ## Symbol:
-LTCUSDT
+XLMUSDT
 
 ## Broker:
 BYBIT
 
 ## Since:
+4 SEPTEMBER 2023

@@ -4,12 +4,13 @@
 ⚫️       🤖 | BY[BOT2] | ▲▼ | [BB+Aroon] | $100
 
 ## Timeframe:
-15M
+30M
 
 ## Symbol:
-LTCUSDT
+DOGEUSDT
 
 ## Broker:
 BYBIT
 
 ## Since:
+31 AUGUST 2023
