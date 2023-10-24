@@ -1,2 +1,2 @@
 **/_Archive/*
-!**/_Archive/*.zip
+!**/_Archive/*.{zip,tar.gz,tar.bz2,tar}
