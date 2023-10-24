@@ -1,9 +1,0 @@
-Name,Value
-"__indicatorName","BB + Aroon [Alorse]"
-"LengthBB",18
-"Source","close"
-"StdDev",1.9
-"LengthAr",279
-"Aroon Confirmation",91
-"Aroon Stop",70
-"Enable live mode and stop backtesting",false

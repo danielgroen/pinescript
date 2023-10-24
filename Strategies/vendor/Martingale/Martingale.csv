@@ -1,7 +1,0 @@
-Name,Value
-"__indicatorName","Martingale"
-"Direction","Long"
-"Buffer",1.9
-"Stop loss %",3
-"Target Profit %",8
-"Enable live mode and stop backtesting",false
