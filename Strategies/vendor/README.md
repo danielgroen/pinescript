@@ -1,5 +1,4 @@
-# pinescript
-collection of my scripts
+# pinescript collection
 
 ## Alert logica
 🟢⚫️ 🤖 ⚪️🔮
@@ -10,13 +9,21 @@ collection of my scripts
 🟢=Kucoin
 ⚫️=Bybit
 
-
 🤖=bot
-
 
 ▲▼=long/short
 ▼=long
 ▼=short
+
+___
+
+## Layout names
+🤖 [BOTS1]
+🤖 [BOTS2]
+
+___
+
+## Notes
 
 @daviddtech Strategies 
 https://clever-rose-976.notion.site/a5d9bd83b0bd4914b68e6f0e29fbb92c?v=bf8fce2c28d64550831eb0adc3707de7
