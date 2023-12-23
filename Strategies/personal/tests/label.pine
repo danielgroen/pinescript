@@ -1,0 +1,18 @@
+//@version=5
+indicator("Label", shorttitle="Label", overlay=true)
+
+// Input field for text
+var string title = input.string("Enter Text Here", title="Strategy")
+
+// Calculate center of the last bar
+centerX = bar_index
+centerY = high
+
+if (barstate.islast)
+    label.new(
+         x = centerX,
+         y = centerY,
+         text = title,
+         color = color.white,
+         textalign = text.align_center,
+         size = size.large)
